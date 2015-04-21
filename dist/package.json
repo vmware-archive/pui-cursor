@@ -2,7 +2,13 @@
   "name": "pui-cursor",
   "version": "0.0.6",
   "description": "immutable cursor implementation for react",
-  "main": "cursor.js",
+  "main": "dist/cursor.js",
+  "files": [
+    "dist",
+    "package.json",
+    "LICENSE",
+    "README.md"
+  ],
   "scripts": {
     "test": "gulp spec"
   },
