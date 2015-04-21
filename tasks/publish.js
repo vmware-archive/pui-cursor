@@ -8,7 +8,7 @@ gulp.task('publish', ['build'], function(){
       return;
     }
 
-    npm.commands.publish([packageDir], function(error) {
+    npm.commands.publish(['.'], function(error) {
       if (error) {
         console.error(error);
       }
