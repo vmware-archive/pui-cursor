@@ -1,0 +1,36 @@
+{
+  "name": "pui-cursor",
+  "version": "0.0.1",
+  "description": "",
+  "main": "dist/cursor.js",
+  "scripts": {
+    "test": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pivotal-cf/pui-cursor.git"
+  },
+  "keywords": [
+    "cursor"
+  ],
+  "author": "Pivotal, Inc",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pivotal-cf/pui-cursor/issues"
+  },
+  "homepage": "https://github.com/pivotal-cf/pui-cursor",
+  "devDependencies": {
+    "babel": "^5.1.11",
+    "gulp": "^3.8.11",
+    "gulp-babel": "^5.1.0",
+    "gulp-eslint": "^0.9.0",
+    "gulp-jasmine": "^2.0.1",
+    "gulp-load-plugins": "^0.10.0",
+    "gulp-plumber": "^1.0.0",
+    "require-dir": "^0.3.0",
+    "run-sequence": "^1.0.2"
+  },
+  "dependencies": {
+    "react": ">=0.12.2"
+  }
+}
