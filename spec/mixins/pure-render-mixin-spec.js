@@ -5,7 +5,7 @@ describe('PureRenderMixin', function() {
   var subject, one, two, three, nested, renderSpy, wrapper, Cursor;
   var update = React.addons.update;
   beforeEach(function() {
-    var PureRenderMixin = require('../../src/mixins/pure_render_mixin');
+    var PureRenderMixin = require('../../src/mixins/pure-render-mixin');
     renderSpy = jasmine.createSpy('render').and.returnValue(null);
     nested = { foo: 'bar'};
     one = {name: 'one', nested: nested};
