@@ -20,8 +20,8 @@
   },
   "homepage": "https://github.com/pivotal-cf/pui-cursor",
   "devDependencies": {
-    "babel": "^5.1.11",
-    "babel-core": "^5.1.11",
+    "babel": "^5.2.6",
+    "babel-core": "^5.2.6",
     "babel-loader": "^5.0.0",
     "foreman": "^1.3.0",
     "gulp": "^3.8.11",
