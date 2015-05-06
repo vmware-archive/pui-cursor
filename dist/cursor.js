@@ -1,14 +1,12 @@
 'use strict';
 
-var _defineProperty = function (obj, key, value) { return Object.defineProperty(obj, key, { value: value, enumerable: key == null || typeof Symbol == 'undefined' || key.constructor !== Symbol, configurable: true, writable: true }); };
+var _defineProperty = function (obj, key, value) { return Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); };
 
 var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } };
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _require = require('react/addons');
-
-var update = _require.addons.update;
+var React = require('react/addons');
 
 var privates = new WeakMap();
 
@@ -116,17 +114,7 @@ var Cursor = (function () {
     }
   }, {
     key: 'update',
-    value: (function (_update) {
-      function update(_x) {
-        return _update.apply(this, arguments);
-      }
-
-      update.toString = function () {
-        return _update.toString();
-      };
-
-      return update;
-    })(function (options) {
+    value: function update(options) {
       var _privates$get3 = privates.get(this);
 
       var callback = _privates$get3.callback;
@@ -136,9 +124,9 @@ var Cursor = (function () {
       var query = path.reduceRight(function (memo, step) {
         return _defineProperty({}, step, Object.assign({}, memo));
       }, options);
-      callback(update(data, query));
+      callback(React.addons.update(data, query));
       return this;
-    })
+    }
   }]);
 
   return Cursor;
