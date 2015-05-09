@@ -1,6 +1,6 @@
 {
   "name": "pui-cursor",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "immutable cursor implementation for react",
   "main": "cursor.js",
   "scripts": {
@@ -39,6 +39,7 @@
     "run-sequence": "^1.0.2"
   },
   "dependencies": {
+    "babel-runtime": "^5.2.17",
     "react": ">=0.12.2"
   }
 }

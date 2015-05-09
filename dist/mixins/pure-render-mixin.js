@@ -1,5 +1,7 @@
 'use strict';
 
+var _Object$keys = require('babel-runtime/core-js/object/keys')['default'];
+
 var Cursor = require('../cursor');
 
 function isNotEqual(next, current, ignore) {
@@ -20,7 +22,7 @@ var PureRenderMixin = {
       var type = _ref.type;
 
       var ignore = 'ignorePureRender' + type;
-      return next && Object.keys(next).some(isNotEqual(next, current, this[ignore] || []));
+      return next && _Object$keys(next).some(isNotEqual(next, current, this[ignore] || []));
     }, this);
   }
 };

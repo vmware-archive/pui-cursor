@@ -1,14 +1,18 @@
 'use strict';
 
-var _defineProperty = function (obj, key, value) { return Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); };
+var _createClass = require('babel-runtime/helpers/create-class')['default'];
 
-var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } };
+var _classCallCheck = require('babel-runtime/helpers/class-call-check')['default'];
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+var _defineProperty = require('babel-runtime/helpers/define-property')['default'];
+
+var _WeakMap = require('babel-runtime/core-js/weak-map')['default'];
+
+var _Object$assign = require('babel-runtime/core-js/object/assign')['default'];
 
 var React = require('react/addons');
 
-var privates = new WeakMap();
+var privates = new _WeakMap();
 
 var Cursor = (function () {
   function Cursor(data, callback) {
@@ -122,7 +126,7 @@ var Cursor = (function () {
       var path = _privates$get3.path;
 
       var query = path.reduceRight(function (memo, step) {
-        return _defineProperty({}, step, Object.assign({}, memo));
+        return _defineProperty({}, step, _Object$assign({}, memo));
       }, options);
       callback(React.addons.update(data, query));
       return this;
