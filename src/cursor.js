@@ -1,4 +1,4 @@
-var React = require('react/addons');
+var reactUpdate = require('react/lib/update');
 
 var privates = new WeakMap();
 
@@ -56,7 +56,7 @@ class Cursor {
   update(options) {
     var {callback, data, path} = privates.get(this);
     var query = path.reduceRight((memo, step) => ({[step]: Object.assign({}, memo)}), options);
-    callback(React.addons.update(data, query));
+    callback(reactUpdate(data, query));
     return this;
   }
 }

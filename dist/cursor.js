@@ -10,7 +10,7 @@ var _WeakMap = require('babel-runtime/core-js/weak-map')['default'];
 
 var _Object$assign = require('babel-runtime/core-js/object/assign')['default'];
 
-var React = require('react/addons');
+var reactUpdate = require('react/lib/update');
 
 var privates = new _WeakMap();
 
@@ -128,7 +128,7 @@ var Cursor = (function () {
       var query = path.reduceRight(function (memo, step) {
         return _defineProperty({}, step, _Object$assign({}, memo));
       }, options);
-      callback(React.addons.update(data, query));
+      callback(reactUpdate(data, query));
       return this;
     }
   }]);
