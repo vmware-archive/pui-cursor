@@ -179,8 +179,9 @@ describe('Cursor', function() {
       it('applies all updates in the expected order', function() {
         subject.merge({hi: 5});
         subject.merge({bye: 3});
+        subject.merge({foo: 4});
         jasmine.clock().tick(1);
-        expect(callbackSpy).toHaveBeenCalledWith(jasmine.objectContaining({hi: 5, bye: 3}));
+        expect(callbackSpy).toHaveBeenCalledWith(jasmine.objectContaining({hi: 5, bye: 3,foo: 4}));
       });
     });
   });
