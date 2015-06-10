@@ -58,21 +58,18 @@ class Cursor {
   }
 
   update(options) {
-    var {updates} = privates.get(this);
-    if (!updates.length) {
+    var {callback, data, path, updates} = privates.get(this);
+    updates.unshift((data) => {
+      var query = path.reduceRight((memo, step) => ({[step]: Object.assign({}, memo)}), options);
+      return reactUpdate(data, query);
+    });
+    if (updates.length === 1) {
       this.nextTick(() => {
-        var {callback, data, updates} = privates.get(this);
         var fn = compose(...updates);
         updates.splice(0, updates.length);
         callback(fn.call(this, data));
       });
     }
-    updates.unshift((data) => {
-      var {path} = privates.get(this);
-      var query = path.reduceRight((memo, step) => ({[step]: Object.assign({}, memo)}), options);
-      return reactUpdate(data, query);
-    });
-
     return this;
   }
 }

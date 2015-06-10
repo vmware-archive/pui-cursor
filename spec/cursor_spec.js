@@ -142,6 +142,30 @@ describe('Cursor', function() {
   });
 
   describe('when more than one operation occurs on a cursor simultaneously', function() {
+
+    describe('when the nextTick is synchronous', function() {
+      beforeEach(function() {
+        Cursor.prototype.nextTick.and.callFake(cb => cb());
+      });
+
+      it('applies the updates in the expected order', function() {
+        subject.merge({hi: 5});
+        subject.merge({bye: 3});
+        expect(callbackSpy).toHaveBeenCalled();
+        expect(callbackSpy).toHaveBeenCalledWith(jasmine.objectContaining({bye: 3}));
+        expect(callbackSpy.calls.mostRecent().args[0]).not.toEqual(jasmine.objectContaining({hi: 5}));
+      });
+    });
+    describe('#refine', function() {
+      it('applies all updates in the expected order', function() {
+        subject.refine('scaling').set('something else');
+        subject.merge({hi: 5});
+        jasmine.clock().tick(1);
+        expect(callbackSpy).toHaveBeenCalledWith(jasmine.objectContaining({hi: 5, scaling: 'something else'}));
+        expect(callbackSpy).not.toHaveBeenCalledWith(jasmine.objectContaining({scaling: 'containers'}));
+      });
+    });
+
     describe('#push', function() {
       it('applies all updates in the expected order', function() {
         subject.refine('cells').push({cell_id: 100}).push({cell_id: 101})

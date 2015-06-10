@@ -5,9 +5,9 @@ var _createClass = require('babel-runtime/helpers/create-class')['default'];
 
 var _classCallCheck = require('babel-runtime/helpers/class-call-check')['default'];
 
-var _toConsumableArray = require('babel-runtime/helpers/to-consumable-array')['default'];
-
 var _defineProperty = require('babel-runtime/helpers/define-property')['default'];
+
+var _toConsumableArray = require('babel-runtime/helpers/to-consumable-array')['default'];
 
 var _WeakMap = require('babel-runtime/core-js/weak-map')['default'];
 
@@ -133,32 +133,24 @@ var Cursor = (function () {
 
       var _privates$get3 = privates.get(this);
 
+      var callback = _privates$get3.callback;
+      var data = _privates$get3.data;
+      var path = _privates$get3.path;
       var updates = _privates$get3.updates;
 
-      if (!updates.length) {
-        this.nextTick(function () {
-          var _privates$get4 = privates.get(_this2);
-
-          var callback = _privates$get4.callback;
-          var data = _privates$get4.data;
-          var updates = _privates$get4.updates;
-
-          var fn = compose.apply(undefined, _toConsumableArray(updates));
-          updates.splice(0, updates.length);
-          callback(fn.call(_this2, data));
-        });
-      }
       updates.unshift(function (data) {
-        var _privates$get5 = privates.get(_this2);
-
-        var path = _privates$get5.path;
-
         var query = path.reduceRight(function (memo, step) {
           return _defineProperty({}, step, _Object$assign({}, memo));
         }, options);
         return reactUpdate(data, query);
       });
-
+      if (updates.length === 1) {
+        this.nextTick(function () {
+          var fn = compose.apply(undefined, _toConsumableArray(updates));
+          updates.splice(0, updates.length);
+          callback(fn.call(_this2, data));
+        });
+      }
       return this;
     }
   }]);
