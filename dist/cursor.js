@@ -1,8 +1,11 @@
+//(c) Copyright 2015 Pivotal Software, Inc. All Rights Reserved.
 'use strict';
 
 var _createClass = require('babel-runtime/helpers/create-class')['default'];
 
 var _classCallCheck = require('babel-runtime/helpers/class-call-check')['default'];
+
+var _toConsumableArray = require('babel-runtime/helpers/to-consumable-array')['default'];
 
 var _defineProperty = require('babel-runtime/helpers/define-property')['default'];
 
@@ -11,16 +14,17 @@ var _WeakMap = require('babel-runtime/core-js/weak-map')['default'];
 var _Object$assign = require('babel-runtime/core-js/object/assign')['default'];
 
 var reactUpdate = require('react/lib/update');
-
+var compose = require('lodash.flowright');
 var privates = new _WeakMap();
 
 var Cursor = (function () {
   function Cursor(data, callback) {
     var path = arguments[2] === undefined ? [] : arguments[2];
+    var updates = arguments[3] === undefined ? [] : arguments[3];
 
     _classCallCheck(this, Cursor);
 
-    privates.set(this, { data: data, path: path, callback: callback });
+    privates.set(this, { data: data, path: path, callback: callback, updates: updates });
   }
 
   _createClass(Cursor, [{
@@ -37,6 +41,7 @@ var Cursor = (function () {
       var callback = _privates$get.callback;
       var data = _privates$get.data;
       var path = _privates$get.path;
+      var updates = _privates$get.updates;
 
       if (query.some(function (p) {
         return typeof p === 'object';
@@ -44,9 +49,9 @@ var Cursor = (function () {
         query = query.map(function (p, i) {
           return typeof p !== 'object' ? p : (!i ? _this.get() : _this.get(query[i - 1])).indexOf(p);
         });
-        return new Cursor(data, callback, path.concat(query));
+        return new Cursor(data, callback, path.concat(query), updates);
       }
-      return new Cursor(data, callback, path.concat(query));
+      return new Cursor(data, callback, path.concat(query), updates);
     }
   }, {
     key: 'get',
@@ -117,18 +122,43 @@ var Cursor = (function () {
       return this.update({ $unshift: options });
     }
   }, {
+    key: 'nextTick',
+    value: function nextTick(fn) {
+      setImmediate(fn);
+    }
+  }, {
     key: 'update',
     value: function update(options) {
+      var _this2 = this;
+
       var _privates$get3 = privates.get(this);
 
-      var callback = _privates$get3.callback;
-      var data = _privates$get3.data;
-      var path = _privates$get3.path;
+      var updates = _privates$get3.updates;
 
-      var query = path.reduceRight(function (memo, step) {
-        return _defineProperty({}, step, _Object$assign({}, memo));
-      }, options);
-      callback(reactUpdate(data, query));
+      if (!updates.length) {
+        this.nextTick(function () {
+          var _privates$get4 = privates.get(_this2);
+
+          var callback = _privates$get4.callback;
+          var data = _privates$get4.data;
+          var updates = _privates$get4.updates;
+
+          var fn = compose.apply(undefined, _toConsumableArray(updates));
+          updates.splice(0, updates.length);
+          callback(fn.call(_this2, data));
+        });
+      }
+      updates.unshift(function (data) {
+        var _privates$get5 = privates.get(_this2);
+
+        var path = _privates$get5.path;
+
+        var query = path.reduceRight(function (memo, step) {
+          return _defineProperty({}, step, _Object$assign({}, memo));
+        }, options);
+        return reactUpdate(data, query);
+      });
+
       return this;
     }
   }]);

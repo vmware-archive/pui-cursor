@@ -1,3 +1,4 @@
+//(c) Copyright 2015 Pivotal Software, Inc. All Rights Reserved.
 'use strict';
 
 var _Object$keys = require('babel-runtime/core-js/object/keys')['default'];

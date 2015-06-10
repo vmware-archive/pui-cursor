@@ -1,9 +1,9 @@
 require('./spec_helper');
-
 describe('Cursor', function() {
   var Cursor, subject, data, cells, callbackSpy;
   beforeEach(function() {
     Cursor = require('../src/cursor');
+    spyOn(Cursor.prototype, 'nextTick').and.callFake(cb => setTimeout(cb, 0));
     cells = [{cell_id: 4}, {cell_id: 32}, {cell_id: 44}];
     data = {scaling: 'containers', cells, desiredLrps: []};
     callbackSpy = jasmine.createSpy('callback');
@@ -34,28 +34,31 @@ describe('Cursor', function() {
       expect(subject.refine('cells').refine(cells[1]).get()).toBe(cells[1]);
     });
 
-    it('returns a cursor than updates in the expected way', function() {
+    it('returns a cursor that updates in the expected way', function() {
       var cell = {cell_id: 'new'};
       subject.refine('cells').refine(cells[1]).set(cell);
+      jasmine.clock().tick(1);
       expect(callbackSpy).toHaveBeenCalled();
       expect(callbackSpy.calls.mostRecent().args[0].cells).toContain(cell);
     });
-
   });
 
   describe('#update', function() {
     it('calls the callback with the changed data', function() {
       subject.update({scaling: {$set: 'memory'}});
+      jasmine.clock().tick(1);
       expect(callbackSpy).toHaveBeenCalledWith(jasmine.objectContaining({scaling: 'memory', cells}));
     });
 
     it('calls the callback when cursor is refined', function() {
       subject.refine('scaling').update({$set: 'memory'});
+      jasmine.clock().tick(1);
       expect(callbackSpy).toHaveBeenCalledWith(jasmine.objectContaining({scaling: 'memory', cells}));
     });
 
     it('calls the callback when the cursor is refined at multiple levels', function() {
       subject.refine('cells', 0, 'cell_id').update({$set: 'something'});
+      jasmine.clock().tick(1);
       expect(callbackSpy).toHaveBeenCalled();
       expect(callbackSpy.calls.mostRecent().args[0].cells[0].cell_id).toEqual('something');
     });
@@ -64,6 +67,7 @@ describe('Cursor', function() {
   describe('#merge', function() {
     it('updates the cursor', function() {
       subject.merge({foo: 'bar'});
+      jasmine.clock().tick(1);
       expect(callbackSpy).toHaveBeenCalledWith(jasmine.objectContaining({foo: 'bar', cells}));
     });
   });
@@ -71,6 +75,7 @@ describe('Cursor', function() {
   describe('#set', function() {
     it('updates the cursor', function() {
       subject.refine('scaling').set('memory');
+      jasmine.clock().tick(1);
       expect(callbackSpy).toHaveBeenCalledWith(jasmine.objectContaining({scaling: 'memory', cells}));
     });
   });
@@ -78,6 +83,7 @@ describe('Cursor', function() {
   describe('#splice', function() {
     it('updates the cursor', function() {
       subject.refine('cells').splice([0, 1]);
+      jasmine.clock().tick(1);
       expect(callbackSpy.calls.mostRecent().args[0].cells).not.toContain(cells[0]);
     });
   });
@@ -86,6 +92,7 @@ describe('Cursor', function() {
     it('updates the cursor', function() {
       var cell = {cell_id: 'new'};
       subject.refine('cells').push(cell);
+      jasmine.clock().tick(1);
       expect(callbackSpy).toHaveBeenCalled();
       expect(callbackSpy.calls.mostRecent().args[0].cells).toContain(cell);
     });
@@ -95,6 +102,7 @@ describe('Cursor', function() {
     it('updates the cursor', function() {
       var cell = {cell_id: 'new'};
       subject.refine('cells').unshift(cell);
+      jasmine.clock().tick(1);
       expect(callbackSpy).toHaveBeenCalled();
       expect(callbackSpy.calls.mostRecent().args[0].cells).toContain(cell);
     });
@@ -104,6 +112,7 @@ describe('Cursor', function() {
     it('updates the cursor', function() {
       var newCells = [{cell_id: 'a'}, {cell_id: 'b'}, {cell_id: 'c'}];
       subject.refine('cells').apply(() => newCells);
+      jasmine.clock().tick(1);
       expect(callbackSpy).toHaveBeenCalledWith(jasmine.objectContaining({cells: newCells}));
     });
   });
@@ -111,8 +120,8 @@ describe('Cursor', function() {
   describe('chaining', function() {
     it('works', function() {
       subject.set({foo: 'bar'}).merge({bar: 'baz'});
-      expect(callbackSpy).toHaveBeenCalledWith(jasmine.objectContaining({foo: 'bar'}));
-      expect(callbackSpy).toHaveBeenCalledWith(jasmine.objectContaining({bar: 'baz', cells}));
+      jasmine.clock().tick(1);
+      expect(callbackSpy).toHaveBeenCalledWith(jasmine.objectContaining({foo: 'bar', bar: 'baz'}));
     });
   });
 
@@ -127,7 +136,28 @@ describe('Cursor', function() {
   describe('#remove', function() {
     it('updates the cursor when given an object', function() {
       subject.refine('cells').remove(cells[0]);
+      jasmine.clock().tick(1);
       expect(callbackSpy.calls.mostRecent().args[0].cells).not.toContain(cells[0]);
+    });
+  });
+
+  describe('when more than one operation occurs on a cursor simultaneously', function() {
+    describe('#push', function() {
+      it('applies all updates in the expected order', function() {
+        subject.refine('cells').push({cell_id: 100}).push({cell_id: 101})
+        jasmine.clock().tick(1);
+        expect(callbackSpy).toHaveBeenCalled();
+        expect(callbackSpy.calls.mostRecent().args[0].cells.map(cell => cell.cell_id)).toEqual([4, 32, 44, 100, 101]);
+      });
+    });
+
+    describe('#merge', function() {
+      it('applies all updates in the expected order', function() {
+        subject.merge({hi: 5});
+        subject.merge({bye: 3});
+        jasmine.clock().tick(1);
+        expect(callbackSpy).toHaveBeenCalledWith(jasmine.objectContaining({hi: 5, bye: 3}));
+      });
     });
   });
 });

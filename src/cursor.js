@@ -1,19 +1,19 @@
 var reactUpdate = require('react/lib/update');
-
+var compose = require('lodash.flowright');
 var privates = new WeakMap();
 
 class Cursor {
-  constructor(data, callback, path = []) {
-    privates.set(this, {data, path, callback});
+  constructor(data, callback, path = [], updates = []) {
+    privates.set(this, {data, path, callback, updates});
   }
 
   refine(...query) {
-    var {callback, data, path} = privates.get(this);
+    var {callback, data, path, updates} = privates.get(this);
     if (query.some(p => typeof p === 'object')) {
       query = query.map((p, i) => typeof p !== 'object' ? p : (!i ? this.get() : this.get(query[i - 1])).indexOf(p));
-      return new Cursor(data, callback, path.concat(query));
+      return new Cursor(data, callback, path.concat(query), updates);
     }
-    return new Cursor(data, callback, path.concat(query));
+    return new Cursor(data, callback, path.concat(query), updates);
   }
 
   get(...morePath) {
@@ -53,10 +53,26 @@ class Cursor {
     return this.update({$unshift: options});
   }
 
+  nextTick(fn) {
+    setImmediate(fn);
+  }
+
   update(options) {
-    var {callback, data, path} = privates.get(this);
-    var query = path.reduceRight((memo, step) => ({[step]: Object.assign({}, memo)}), options);
-    callback(reactUpdate(data, query));
+    var {updates} = privates.get(this);
+    if (!updates.length) {
+      this.nextTick(() => {
+        var {callback, data, updates} = privates.get(this);
+        var fn = compose(...updates);
+        updates.splice(0, updates.length);
+        callback(fn.call(this, data));
+      });
+    }
+    updates.unshift((data) => {
+      var {path} = privates.get(this);
+      var query = path.reduceRight((memo, step) => ({[step]: Object.assign({}, memo)}), options);
+      return reactUpdate(data, query);
+    });
+
     return this;
   }
 }
