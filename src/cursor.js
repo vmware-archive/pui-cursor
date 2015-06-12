@@ -1,19 +1,25 @@
 var reactUpdate = require('react/lib/update');
 var compose = require('lodash.flowright');
 var privates = new WeakMap();
+var async = true;
 
 class Cursor {
-  constructor(data, callback, path = [], updates = []) {
-    privates.set(this, {data, path, callback, updates});
+  get async() { return async; }
+
+  set async(bool) { async = bool; }
+
+  constructor(data, callback, path = [], state = null) {
+    state = state || {updates: [], updatedData: data};
+    privates.set(this, {data, callback, path, state});
   }
 
   refine(...query) {
-    var {callback, data, path, updates} = privates.get(this);
+    var {callback, data, path, state} = privates.get(this);
     if (query.some(p => typeof p === 'object')) {
       query = query.map((p, i) => typeof p !== 'object' ? p : (!i ? this.get() : this.get(query[i - 1])).indexOf(p));
-      return new Cursor(data, callback, path.concat(query), updates);
+      return new Cursor(data, callback, path.concat(query), state);
     }
-    return new Cursor(data, callback, path.concat(query), updates);
+    return new Cursor(data, callback, path.concat(query), state);
   }
 
   get(...morePath) {
@@ -58,19 +64,37 @@ class Cursor {
   }
 
   update(options) {
-    var {callback, data, path, updates} = privates.get(this);
-    updates.unshift((data) => {
-      var query = path.reduceRight((memo, step) => ({[step]: Object.assign({}, memo)}), options);
+    var {path} = privates.get(this);
+    var query = path.reduceRight((memo, step) => ({[step]: Object.assign({}, memo)}), options);
+
+    if (Cursor.async) {
+      this.updateAsync(query);
+    } else {
+      this.updateSync(query);
+    }
+    return this;
+  }
+
+  updateSync(query) {
+    var {callback, data, path, state} = privates.get(this);
+    var {updatedData} = state;
+    state.updatedData = reactUpdate(updatedData, query);
+    privates.set(this, {data, callback, path, state});
+    callback(state.updatedData);
+  }
+
+  updateAsync(query) {
+    var {callback, data, state} = privates.get(this);
+    state.updates.unshift((data) => {
       return reactUpdate(data, query);
     });
-    if (updates.length === 1) {
+    if (state.updates.length === 1) {
       this.nextTick(() => {
-        var fn = compose(...updates);
-        updates.splice(0, updates.length);
+        var fn = compose(...state.updates);
+        state.updates = [];
         callback(fn.call(this, data));
       });
     }
-    return this;
   }
 }
 
