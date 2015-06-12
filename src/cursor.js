@@ -3,6 +3,29 @@ var compose = require('lodash.flowright');
 var privates = new WeakMap();
 var async = true;
 
+var updater = {
+  sync(query) {
+    var {callback, state} = privates.get(this);
+    var {updatedData} = state;
+    state.updatedData = reactUpdate(updatedData, query);
+    callback(state.updatedData);
+  },
+
+  async(query) {
+    var {callback, data, state} = privates.get(this);
+    state.updates.unshift((data) => {
+      return reactUpdate(data, query);
+    });
+    if (state.updates.length === 1) {
+      this.nextTick(() => {
+        var fn = compose(...state.updates);
+        state.updates = [];
+        callback(fn.call(this, data));
+      });
+    }
+  }
+};
+
 class Cursor {
   get async() { return async; }
 
@@ -66,35 +89,8 @@ class Cursor {
   update(options) {
     var {path} = privates.get(this);
     var query = path.reduceRight((memo, step) => ({[step]: Object.assign({}, memo)}), options);
-
-    if (Cursor.async) {
-      this.updateAsync(query);
-    } else {
-      this.updateSync(query);
-    }
+    updater[Cursor.async ? 'async' : 'sync'].call(this, query);
     return this;
-  }
-
-  updateSync(query) {
-    var {callback, data, path, state} = privates.get(this);
-    var {updatedData} = state;
-    state.updatedData = reactUpdate(updatedData, query);
-    privates.set(this, {data, callback, path, state});
-    callback(state.updatedData);
-  }
-
-  updateAsync(query) {
-    var {callback, data, state} = privates.get(this);
-    state.updates.unshift((data) => {
-      return reactUpdate(data, query);
-    });
-    if (state.updates.length === 1) {
-      this.nextTick(() => {
-        var fn = compose(...state.updates);
-        state.updates = [];
-        callback(fn.call(this, data));
-      });
-    }
   }
 }
 
