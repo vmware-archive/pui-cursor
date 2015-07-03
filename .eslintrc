@@ -28,6 +28,8 @@
     "unicodeCodePointEscapes": true
   },
 
+  "parser": "babel-eslint",
+
   "rules": {
     "camelcase": 0,
     "curly": 0,

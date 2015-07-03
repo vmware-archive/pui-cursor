@@ -1,14 +1,15 @@
 var gulp = require('gulp');
 var plugins = require('gulp-load-plugins')();
 var runSequence = require('run-sequence');
+var webpack = require('webpack-stream');
 
 gulp.task('spec', callback => runSequence('lint', 'jasmine-ci', callback));
 
 function testAssets(options = {}) {
-  var webpackConfig = Object.assign(require('../config/webpack'), options);
+  var webpackConfig = {...require('../config/webpack'), ... options};
   return gulp.src('spec/**/*_spec.js')
     .pipe(plugins.plumber())
-    .pipe(plugins.webpack(webpackConfig));
+    .pipe(webpack(webpackConfig));
 }
 
 gulp.task('jasmine-ci', function() {
