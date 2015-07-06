@@ -27,9 +27,9 @@ var updater = {
 };
 
 class Cursor {
-  get async() { return async; }
+  static get async() { return async; }
 
-  set async(bool) { async = bool; }
+  static set async(bool) { async = bool; }
 
   constructor(data, callback, path = [], state = null) {
     state = state || {updates: [], updatedData: data};
