@@ -13,14 +13,10 @@ var updater = {
   },
 
   async(query) {
-    var {callback, data, state} = privates.get(this);
+    var {state} = privates.get(this);
     state.updates.unshift(data => reactUpdate(data, query));
     if (state.updates.length !== 1) return;
-    this.nextTick(() => {
-      var fn = compose(...state.updates);
-      state.updates = [];
-      callback(fn.call(this, data));
-    });
+    this.nextTick(this.flush.bind(this));
   }
 };
 
@@ -79,6 +75,15 @@ class Cursor {
 
   nextTick(fn) {
     setImmediate(fn);
+  }
+
+  flush() {
+    var {callback, data, state} = privates.get(this);
+    if (!state.updates.length) return this;
+    var fn = compose(...state.updates);
+    state.updates = [];
+    callback(fn.call(this, data));
+    return this;
   }
 
   update(options) {

@@ -1,4 +1,5 @@
 require('./spec_helper');
+
 describe('Cursor', function() {
   var Cursor, subject, data, cells, callbackSpy;
   beforeEach(function() {
@@ -8,6 +9,7 @@ describe('Cursor', function() {
     callbackSpy = jasmine.createSpy('callback');
     subject = new Cursor(data, callbackSpy);
   });
+
   describe('with async true', function() {
     beforeEach(function() {
       Cursor.async = true;
@@ -145,8 +147,16 @@ describe('Cursor', function() {
       });
     });
 
-    describe('when more than one operation occurs on a cursor simultaneously', function() {
+    describe('#flush', function() {
+      it('applies the data and calls the callback immediately', function() {
+        subject.set({foo: 'bar'});
+        callbackSpy.calls.reset();
+        subject.flush();
+        expect(callbackSpy).toHaveBeenCalledWith(jasmine.objectContaining({foo: 'bar'}));
+      });
+    });
 
+    describe('when more than one operation occurs on a cursor simultaneously', function() {
       describe('when the nextTick is synchronous', function() {
         beforeEach(function() {
           Cursor.prototype.nextTick.and.callFake(cb => cb());
@@ -299,6 +309,15 @@ describe('Cursor', function() {
       it('updates the cursor when given an object', function() {
         subject.refine('cells').remove(cells[0]);
         expect(callbackSpy.calls.mostRecent().args[0].cells).not.toContain(cells[0]);
+      });
+    });
+
+    describe('#flush', function() {
+      it('does not do anything', function() {
+        subject.set({foo: 'bar'});
+        callbackSpy.calls.reset();
+        subject.flush();
+        expect(callbackSpy).not.toHaveBeenCalled();
       });
     });
 
