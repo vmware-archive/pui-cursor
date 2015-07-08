@@ -73,11 +73,11 @@ class Cursor {
   }
 
   update(options) {
-    var {path, state} = privates.get(this);
+    var {path, state: {updates}} = privates.get(this);
     var query = path.reduceRight((memo, step) => ({[step]: {...memo}}), options);
-    state.updates.unshift(data => reactUpdate(data, query));
+    updates.unshift(data => reactUpdate(data, query));
     if (Cursor.async) {
-      if (state.updates.length === 1) this.nextTick(this.flush.bind(this));
+      if (updates.length === 1) this.nextTick(this.flush.bind(this));
       return this;
     }
     return this.flush();
