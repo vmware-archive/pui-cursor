@@ -5,21 +5,6 @@ var reactUpdate = require('react/lib/update');
 var async = true;
 var privates = new WeakMap();
 
-var updater = {
-  sync(query) {
-    var {callback, state} = privates.get(this);
-    state.data = reactUpdate(state.data, query);
-    callback(state.data);
-  },
-
-  async(query) {
-    var {state} = privates.get(this);
-    state.updates.unshift(data => reactUpdate(data, query));
-    if (state.updates.length !== 1) return;
-    this.nextTick(this.flush.bind(this));
-  }
-};
-
 class Cursor {
   static get async() { return async; }
 
@@ -78,18 +63,24 @@ class Cursor {
   }
 
   flush() {
-    var {callback, data, state} = privates.get(this);
+    var {callback, state} = privates.get(this);
     if (!state.updates.length) return this;
     var fn = compose(...state.updates);
     state.updates = [];
-    callback(fn.call(this, data));
+    state.data = fn.call(this, state.data);
+    callback(state.data);
     return this;
   }
 
   update(options) {
-    var {path} = privates.get(this);
+    var {path, state} = privates.get(this);
     var query = path.reduceRight((memo, step) => ({[step]: {...memo}}), options);
-    updater[Cursor.async ? 'async' : 'sync'].call(this, query);
+    state.updates.unshift(data => reactUpdate(data, query));
+    if (Cursor.async) {
+      if (state.updates.length === 1) this.nextTick(this.flush.bind(this));
+    } else {
+      this.flush();
+    }
     return this;
   }
 }

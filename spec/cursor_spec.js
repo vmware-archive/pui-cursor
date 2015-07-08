@@ -157,7 +157,7 @@ describe('Cursor', function() {
     });
 
     describe('when more than one operation occurs on a cursor simultaneously', function() {
-      describe('when the nextTick is synchronous', function() {
+      describe('when the nextTick is called', function() {
         beforeEach(function() {
           Cursor.prototype.nextTick.and.callFake(cb => cb());
         });
@@ -166,10 +166,11 @@ describe('Cursor', function() {
           subject.merge({hi: 5});
           subject.merge({bye: 3});
           expect(callbackSpy).toHaveBeenCalled();
-          expect(callbackSpy).toHaveBeenCalledWith(jasmine.objectContaining({bye: 3}));
-          expect(callbackSpy.calls.mostRecent().args[0]).not.toEqual(jasmine.objectContaining({hi: 5}));
+          expect(callbackSpy).toHaveBeenCalledWith(jasmine.objectContaining({hi: 5, bye: 3}));
+          expect(callbackSpy.calls.count()).toBe(2);
         });
       });
+
       describe('#refine', function() {
         it('applies all updates in the expected order', function() {
           subject.refine('scaling').set('something else');
