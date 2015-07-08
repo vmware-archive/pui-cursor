@@ -78,10 +78,9 @@ class Cursor {
     state.updates.unshift(data => reactUpdate(data, query));
     if (Cursor.async) {
       if (state.updates.length === 1) this.nextTick(this.flush.bind(this));
-    } else {
-      this.flush();
+      return this;
     }
-    return this;
+    return this.flush();
   }
 }
 
