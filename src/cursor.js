@@ -1,28 +1,26 @@
-var reactUpdate = require('react/lib/update');
 var compose = require('lodash.flowright');
-var privates = new WeakMap();
+var {findIndex, isObject} = require('./helpers/cursor_helper');
+var reactUpdate = require('react/lib/update');
+
 var async = true;
+var privates = new WeakMap();
 
 var updater = {
   sync(query) {
     var {callback, state} = privates.get(this);
-    var {updatedData} = state;
-    state.updatedData = reactUpdate(updatedData, query);
-    callback(state.updatedData);
+    state.data = reactUpdate(state.data, query);
+    callback(state.data);
   },
 
   async(query) {
     var {callback, data, state} = privates.get(this);
-    state.updates.unshift((data) => {
-      return reactUpdate(data, query);
+    state.updates.unshift(data => reactUpdate(data, query));
+    if (state.updates.length !== 1) return;
+    this.nextTick(() => {
+      var fn = compose(...state.updates);
+      state.updates = [];
+      callback(fn.call(this, data));
     });
-    if (state.updates.length === 1) {
-      this.nextTick(() => {
-        var fn = compose(...state.updates);
-        state.updates = [];
-        callback(fn.call(this, data));
-      });
-    }
   }
 };
 
@@ -31,18 +29,15 @@ class Cursor {
 
   static set async(bool) { async = bool; }
 
-  constructor(data, callback, path = [], state = null) {
-    state = state || {updates: [], updatedData: data};
+  constructor(data, callback, {path = [], state = {updates: [], data}} = {}) {
     privates.set(this, {data, callback, path, state});
   }
 
   refine(...query) {
     var {callback, data, path, state} = privates.get(this);
-    if (query.some(p => typeof p === 'object')) {
-      query = query.map((p, i) => typeof p !== 'object' ? p : (!i ? this.get() : this.get(query[i - 1])).indexOf(p));
-      return new Cursor(data, callback, path.concat(query), state);
-    }
-    return new Cursor(data, callback, path.concat(query), state);
+    if (!query.some(isObject)) return new Cursor(data, callback, {path: path.concat(query), state});
+    query = query.map(findIndex.bind(this, query));
+    return new Cursor(data, callback, {path: path.concat(query), state});
   }
 
   get(...morePath) {
@@ -88,7 +83,7 @@ class Cursor {
 
   update(options) {
     var {path} = privates.get(this);
-    var query = path.reduceRight((memo, step) => ({[step]: Object.assign({}, memo)}), options);
+    var query = path.reduceRight((memo, step) => ({[step]: {...memo}}), options);
     updater[Cursor.async ? 'async' : 'sync'].call(this, query);
     return this;
   }
