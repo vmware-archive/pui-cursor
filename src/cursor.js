@@ -1,4 +1,4 @@
-var compose = require('lodash.flowright');
+var flow = require('lodash.flow');
 var {findIndex, isObject} = require('./helpers/cursor_helper');
 var reactUpdate = require('react/lib/update');
 
@@ -65,7 +65,7 @@ class Cursor {
   flush() {
     var {callback, state} = privates.get(this);
     if (!state.updates.length) return this;
-    var fn = compose(...state.updates);
+    var fn = flow(...state.updates);
     state.updates = [];
     state.data = fn.call(this, state.data);
     callback(state.data);
@@ -75,7 +75,7 @@ class Cursor {
   update(options) {
     var {path, state: {updates}} = privates.get(this);
     var query = path.reduceRight((memo, step) => ({[step]: {...memo}}), options);
-    updates.unshift(data => reactUpdate(data, query));
+    updates.push(data => reactUpdate(data, query));
     if (!Cursor.async) return this.flush();
     if (updates.length === 1) this.nextTick(this.flush.bind(this));
     return this;

@@ -44,7 +44,7 @@
   },
   "dependencies": {
     "babel-runtime": "^5.5.4",
-    "lodash.flowright": "^3.2.1",
+    "lodash.flow": "^3.2.1",
     "react": "^0.13.0"
   }
 }
