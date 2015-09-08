@@ -158,16 +158,13 @@ describe('Cursor', function() {
 
     describe('when more than one operation occurs on a cursor simultaneously', function() {
       describe('when the nextTick is called', function() {
-        beforeEach(function() {
-          Cursor.prototype.nextTick.and.callFake(cb => cb());
-        });
-
         it('applies the updates in the expected order', function() {
           subject.merge({hi: 5});
           subject.merge({bye: 3});
+          jasmine.clock().tick(1);
           expect(callbackSpy).toHaveBeenCalled();
           expect(callbackSpy).toHaveBeenCalledWith(jasmine.objectContaining({hi: 5, bye: 3}));
-          expect(callbackSpy.calls.count()).toBe(2);
+          expect(callbackSpy.calls.count()).toBe(1);
         });
       });
 
@@ -361,6 +358,52 @@ describe('Cursor', function() {
           subject.merge({foo: 4});
           expect(callbackSpy).toHaveBeenCalledWith(jasmine.objectContaining({hi: 5, bye: 3,foo: 4}));
         });
+      });
+    });
+  });
+
+  describe('with debug mode false', function() {
+    beforeEach(function() {
+      Cursor.debug = false;
+    });
+
+    describe('with a stale cursor', function() {
+      beforeEach(function() {
+        Cursor.async = true;
+        spyOn(Cursor.prototype, 'nextTick').and.callFake(cb => setTimeout(cb, 0));
+
+        spyOn(console, 'warn');
+        subject.set({foo: 'bar'});
+        jasmine.clock().tick(1);
+        expect(console.warn).not.toHaveBeenCalled();
+      });
+
+      it('does not warn users about using it', function() {
+        subject.merge({foo: 'baz'});
+        expect(console.warn).not.toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe('with debug mode true', function() {
+    beforeEach(function() {
+      Cursor.debug = true;
+    });
+
+    describe('with a stale cursor', function() {
+      beforeEach(function() {
+        Cursor.async = true;
+        spyOn(Cursor.prototype, 'nextTick').and.callFake(cb => setTimeout(cb, 0));
+
+        spyOn(console, 'warn');
+        subject.set({foo: 'bar'});
+        jasmine.clock().tick(1);
+        expect(console.warn).not.toHaveBeenCalled();
+      });
+
+      it('warns users about using it', function() {
+        subject.merge({foo: 'baz'});
+        expect(console.warn).toHaveBeenCalled();
       });
     });
   });

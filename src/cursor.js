@@ -3,12 +3,17 @@ var {findIndex, isObject} = require('./helpers/cursor_helper');
 var reactUpdate = require('react/lib/update');
 
 var async = true;
+var debug = true;
 var privates = new WeakMap();
 
 class Cursor {
   static get async() { return async; }
 
   static set async(bool) { async = bool; }
+
+  static get debug() { return debug; }
+
+  static set debug(bool) { debug = bool; }
 
   constructor(data, callback, {path = [], state = {updates: [], data}} = {}) {
     privates.set(this, {data, callback, path, state});
@@ -68,12 +73,14 @@ class Cursor {
     var fn = flow(...state.updates);
     state.updates = [];
     state.data = fn.call(this, state.data);
+    if(Cursor.async) state.stale = true;
     callback(state.data);
     return this;
   }
 
   update(options) {
-    var {path, state: {updates}} = privates.get(this);
+    var {path, state: {updates, stale}} = privates.get(this);
+    if(Cursor.debug && stale) console.warn('You are updating a stale cursor, this is almost always a bug');
     var query = path.reduceRight((memo, step) => ({[step]: {...memo}}), options);
     updates.push(data => reactUpdate(data, query));
     if (!Cursor.async) return this.flush();
