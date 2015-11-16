@@ -47,6 +47,20 @@ describe('Cursor', function() {
         expect(callbackSpy).toHaveBeenCalled();
         expect(callbackSpy.calls.mostRecent().args[0].cells).toContain(cell);
       });
+
+      describe('for a nested objects in arrays', function() {
+        let nested;
+        beforeEach(function() {
+          nested = [{id: 1}, {id: 2}];
+          cells = [{cell_id: 4}, {cell_id: 32, nested}, {cell_id: 44}];
+          data = {cells};
+          subject = new Cursor(data, callbackSpy);
+        });
+
+        it('returns the expected cursor', function() {
+          expect(subject.refine('cells', cells[1], 'nested', nested[0]).get()).toEqual(nested[0]);
+        });
+      });
     });
 
     describe('#update', function() {

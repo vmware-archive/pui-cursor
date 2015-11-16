@@ -1,33 +1,42 @@
-var flow = require('lodash.flow');
-var {findIndex, isObject} = require('./helpers/cursor_helper');
-var reactUpdate = require('react/lib/update');
+const flow = require('lodash.flow');
+const reactUpdate = require('react/lib/update');
 
-var async = true;
-var debug = true;
-var privates = new WeakMap();
+let async = true, debug = true;
+const privates = new WeakMap();
+
+function isObject(obj) {
+  return typeof obj === 'object';
+}
 
 class Cursor {
-  static get async() { return async; }
+  static get async() {
+    return async;
+  }
 
-  static set async(bool) { async = bool; }
+  static set async(bool) {
+    async = bool;
+  }
 
-  static get debug() { return debug; }
+  static get debug() {
+    return debug;
+  }
 
-  static set debug(bool) { debug = bool; }
+  static set debug(bool) {
+    debug = bool;
+  }
 
   constructor(data, callback, {path = [], state = {updates: [], data}} = {}) {
     privates.set(this, {data, callback, path, state});
   }
 
   refine(...query) {
-    var {callback, data, path, state} = privates.get(this);
-    if (!query.some(isObject)) return new Cursor(data, callback, {path: path.concat(query), state});
-    query = query.map(findIndex.bind(this, query));
+    let {callback, data, path, state} = privates.get(this);
+    query = query.reduce((memo, p) => (memo.push(isObject(p) ? (this.get(...memo)).indexOf(p) : p), memo), []);
     return new Cursor(data, callback, {path: path.concat(query), state});
   }
 
   get(...morePath) {
-    var {data, path} = privates.get(this);
+    const {data, path} = privates.get(this);
     return path.concat(morePath).reduce((memo, step) => memo[step], data);
   }
 
@@ -68,20 +77,20 @@ class Cursor {
   }
 
   flush() {
-    var {callback, state} = privates.get(this);
+    const {callback, state} = privates.get(this);
     if (!state.updates.length) return this;
-    var fn = flow(...state.updates);
+    const fn = flow(...state.updates);
     state.updates = [];
     state.data = fn.call(this, state.data);
-    if(Cursor.async) state.stale = true;
+    if (Cursor.async) state.stale = true;
     callback(state.data);
     return this;
   }
 
   update(options) {
-    var {path, state: {updates, stale}} = privates.get(this);
-    if(Cursor.debug && stale) console.warn('You are updating a stale cursor, this is almost always a bug');
-    var query = path.reduceRight((memo, step) => ({[step]: {...memo}}), options);
+    const {path, state: {updates, stale}} = privates.get(this);
+    if (Cursor.debug && stale) console.warn('You are updating a stale cursor, this is almost always a bug');
+    const query = path.reduceRight((memo, step) => ({[step]: {...memo}}), options);
     updates.push(data => reactUpdate(data, query));
     if (!Cursor.async) return this.flush();
     if (updates.length === 1) this.nextTick(this.flush.bind(this));
