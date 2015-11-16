@@ -154,10 +154,20 @@ describe('Cursor', function() {
     });
 
     describe('#remove', function() {
-      it('updates the cursor when given an object', function() {
-        subject.refine('cells').remove(cells[0]);
-        jasmine.clock().tick(1);
-        expect(callbackSpy.calls.mostRecent().args[0].cells).not.toContain(cells[0]);
+      describe('when the cursor points to an array', function() {
+        it('updates the cursor when given an object', function() {
+          subject.refine('cells').remove(cells[0]);
+          jasmine.clock().tick(1);
+          expect(callbackSpy.calls.mostRecent().args[0].cells).not.toContain(cells[0]);
+        });
+      });
+
+      describe('when the cursor point to an object', function() {
+        it('updates the cursor when given an object', function() {
+          subject.remove('scaling');
+          jasmine.clock().tick(1);
+          expect(callbackSpy).toHaveBeenCalledWith({cells, desiredLrps: []});
+        });
       });
     });
 

@@ -60,8 +60,10 @@ class Cursor {
     return this.update({$push: options});
   }
 
-  remove(object) {
-    return this.splice([this.get().indexOf(object), 1]);
+  remove(obj) {
+    const target = this.get();
+    if (Array.isArray(target)) return this.splice([target.indexOf(obj), 1]);
+    return this.apply(data => (delete data[obj], data));
   }
 
   splice(...options) {
