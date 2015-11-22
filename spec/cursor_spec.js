@@ -1,7 +1,7 @@
 require('./spec_helper');
 
 describe('Cursor', function() {
-  var Cursor, subject, data, cells, callbackSpy;
+  let Cursor, subject, data, cells, callbackSpy;
   beforeEach(function() {
     Cursor = require('../src/cursor');
     cells = [{cell_id: 4}, {cell_id: 32}, {cell_id: 44}];
@@ -27,7 +27,7 @@ describe('Cursor', function() {
 
     describe('#refine', function() {
       it('returns a new cursor that points to the given path', function() {
-        var cursor = subject.refine('scaling');
+        const cursor = subject.refine('scaling');
         expect(cursor).toEqual(jasmine.any(Cursor));
         expect(cursor.get()).toEqual('containers');
       });
@@ -41,7 +41,7 @@ describe('Cursor', function() {
       });
 
       it('returns a cursor that updates in the expected way', function() {
-        var cell = {cell_id: 'new'};
+        const cell = {cell_id: 'new'};
         subject.refine('cells').refine(cells[1]).set(cell);
         jasmine.clock().tick(1);
         expect(callbackSpy).toHaveBeenCalled();
@@ -110,7 +110,7 @@ describe('Cursor', function() {
 
     describe('#push', function() {
       it('updates the cursor', function() {
-        var cell = {cell_id: 'new'};
+        const cell = {cell_id: 'new'};
         subject.refine('cells').push(cell);
         jasmine.clock().tick(1);
         expect(callbackSpy).toHaveBeenCalled();
@@ -120,7 +120,7 @@ describe('Cursor', function() {
 
     describe('#unshift', function() {
       it('updates the cursor', function() {
-        var cell = {cell_id: 'new'};
+        const cell = {cell_id: 'new'};
         subject.refine('cells').unshift(cell);
         jasmine.clock().tick(1);
         expect(callbackSpy).toHaveBeenCalled();
@@ -130,7 +130,7 @@ describe('Cursor', function() {
 
     describe('#apply', function() {
       it('updates the cursor', function() {
-        var newCells = [{cell_id: 'a'}, {cell_id: 'b'}, {cell_id: 'c'}];
+        const newCells = [{cell_id: 'a'}, {cell_id: 'b'}, {cell_id: 'c'}];
         subject.refine('cells').apply(() => newCells);
         jasmine.clock().tick(1);
         expect(callbackSpy).toHaveBeenCalledWith(jasmine.objectContaining({cells: newCells}));
@@ -147,7 +147,7 @@ describe('Cursor', function() {
 
     describe('#isEqual', function() {
       it('returns true when the cursors are the same', function() {
-        var anotherCursor = new Cursor(data, jasmine.createSpy('callback'));
+        const anotherCursor = new Cursor(data, jasmine.createSpy('callback'));
         expect(subject.isEqual(anotherCursor)).toBe(true);
         expect(subject.isEqual(anotherCursor.refine('scaling'))).toBe(false);
       });
@@ -230,7 +230,7 @@ describe('Cursor', function() {
 
     describe('#refine', function() {
       it('returns a new cursor that points to the given path', function() {
-        var cursor = subject.refine('scaling');
+        const cursor = subject.refine('scaling');
         expect(cursor).toEqual(jasmine.any(Cursor));
         expect(cursor.get()).toEqual('containers');
       });
@@ -244,7 +244,7 @@ describe('Cursor', function() {
       });
 
       it('returns a cursor that updates in the expected way', function() {
-        var cell = {cell_id: 'new'};
+        const cell = {cell_id: 'new'};
         subject.refine('cells').refine(cells[1]).set(cell);
         expect(callbackSpy.calls.mostRecent().args[0].cells).toContain(cell);
       });
@@ -290,7 +290,7 @@ describe('Cursor', function() {
 
     describe('#push', function() {
       it('updates the cursor', function() {
-        var cell = {cell_id: 'new'};
+        const cell = {cell_id: 'new'};
         subject.refine('cells').push(cell);
         expect(callbackSpy.calls.mostRecent().args[0].cells).toContain(cell);
       });
@@ -298,7 +298,7 @@ describe('Cursor', function() {
 
     describe('#unshift', function() {
       it('updates the cursor', function() {
-        var cell = {cell_id: 'new'};
+        const cell = {cell_id: 'new'};
         subject.refine('cells').unshift(cell);
         expect(callbackSpy.calls.mostRecent().args[0].cells).toContain(cell);
       });
@@ -306,7 +306,7 @@ describe('Cursor', function() {
 
     describe('#apply', function() {
       it('updates the cursor', function() {
-        var newCells = [{cell_id: 'a'}, {cell_id: 'b'}, {cell_id: 'c'}];
+        const newCells = [{cell_id: 'a'}, {cell_id: 'b'}, {cell_id: 'c'}];
         subject.refine('cells').apply(() => newCells);
         expect(callbackSpy).toHaveBeenCalledWith(jasmine.objectContaining({cells: newCells}));
       });
@@ -321,7 +321,7 @@ describe('Cursor', function() {
 
     describe('#isEqual', function() {
       it('returns true when the cursors are the same', function() {
-        var anotherCursor = new Cursor(data, jasmine.createSpy('callback'));
+        const anotherCursor = new Cursor(data, jasmine.createSpy('callback'));
         expect(subject.isEqual(anotherCursor)).toBe(true);
         expect(subject.isEqual(anotherCursor.refine('scaling'))).toBe(false);
       });

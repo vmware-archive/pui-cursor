@@ -1,5 +1,4 @@
 {
-  "loose": "all",
-  "optional": ["runtime"],
-  "stage": 1
+  "presets": ["es2015-loose"],
+  "plugins": ["transform-object-rest-spread"]
 }

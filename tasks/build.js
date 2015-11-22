@@ -1,8 +1,8 @@
-var del = require('del');
-var gulp = require('gulp');
-var mergeStream = require('merge-stream');
-var plugins = require('gulp-load-plugins')();
-var runSequence = require('run-sequence');
+const del = require('del');
+const gulp = require('gulp');
+const mergeStream = require('merge-stream');
+const plugins = require('gulp-load-plugins')();
+const runSequence = require('run-sequence');
 
 const COPYRIGHT = '//(c) Copyright 2015 Pivotal Software, Inc. All Rights Reserved.\n';
 

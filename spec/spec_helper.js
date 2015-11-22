@@ -1,8 +1,7 @@
-require('babel/polyfill');
+require('babel-polyfill');
 
-var Cursor = require('../src/cursor');
-var React = require('react/addons');
-var jQuery = require('jquery');
+const React = require('react');
+const jQuery = require('jquery');
 
 Object.assign(global, {
   $: jQuery,

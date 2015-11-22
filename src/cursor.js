@@ -1,5 +1,5 @@
 const flow = require('lodash.flow');
-const reactUpdate = require('react/lib/update');
+const reactUpdate = require('react-addons-update');
 
 let async = true, debug = true;
 const privates = new WeakMap();

@@ -2,7 +2,7 @@ module.exports = {
   devtool: 'eval',
   module: {
     loaders: [
-      {test: /\.js$/, exclude: /node_modules/, loader: 'babel-loader'}
+      {test: /\.js$/, exclude: /node_modules/, loader: 'babel'}
     ]
   },
   output: {filename: 'spec.js' },
