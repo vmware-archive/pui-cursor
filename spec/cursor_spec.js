@@ -160,14 +160,34 @@ describe('Cursor', function() {
           jasmine.clock().tick(1);
           expect(callbackSpy.calls.mostRecent().args[0].cells).not.toContain(cells[0]);
         });
+
+        it('does not do anything when attempting to remove an array entry that is not there in the first place', function() {
+          subject.refine('cells').remove('not in cells');
+          jasmine.clock().tick(1);
+          expect(callbackSpy.calls.mostRecent().args[0].cells).toEqual(cells);
+        })
+
+        describe('when the array is empty to begin with', () => {
+          it('does not blow up', () => {
+            subject.refine('desiredLrps').remove('not in desiredLrps');
+            jasmine.clock().tick(1);
+            expect(callbackSpy.calls.mostRecent().args[0].desiredLrps).toEqual([]);
+          });
+        });
       });
 
-      describe('when the cursor point to an object', function() {
+      describe('when the cursor points to an object', function() {
         it('updates the cursor when given an object', function() {
           subject.remove('scaling');
           jasmine.clock().tick(1);
           expect(callbackSpy).toHaveBeenCalledWith({cells, desiredLrps: []});
         });
+
+        it('does not do anything when attempting to remove a key that is not there in the first place', function() {
+          subject.remove('not-here');
+          jasmine.clock().tick(1);
+          expect(callbackSpy).toHaveBeenCalledWith(data);
+        })
       });
     });
 

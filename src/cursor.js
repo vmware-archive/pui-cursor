@@ -62,7 +62,11 @@ class Cursor {
 
   remove(obj) {
     const target = this.get();
-    if (Array.isArray(target)) return this.splice([target.indexOf(obj), 1]);
+    if (Array.isArray(target)){
+      const objArrayIndex = target.indexOf(obj);
+      if(objArrayIndex === -1) return this.splice();
+      return this.splice([objArrayIndex, 1]);
+    }
     return this.apply(data => (delete data[obj], data));
   }
 
