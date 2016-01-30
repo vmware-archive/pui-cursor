@@ -4,7 +4,7 @@
   "description": "immutable cursor implementation for react",
   "main": "cursor.js",
   "scripts": {
-    "test": "gulp spec"
+    "test": "gulp"
   },
   "repository": {
     "type": "git",
