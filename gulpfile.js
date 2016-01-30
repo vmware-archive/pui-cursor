@@ -1,5 +1,7 @@
+process.env.NODE_ENV = process.env.NODE_ENV || 'development';
+
+require('./lib/jsdom');
+
 require('babel-core/register');
 require('babel-polyfill');
-process.env.NODE_ENV = process.env.NODE_ENV || 'development';
-var requireDir = require('require-dir');
-requireDir('./tasks');
+(require('require-dir'))('./tasks');

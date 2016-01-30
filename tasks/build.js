@@ -6,9 +6,7 @@ const runSequence = require('run-sequence');
 
 const COPYRIGHT = '//(c) Copyright 2015 Pivotal Software, Inc. All Rights Reserved.\n';
 
-gulp.task('clean', function(callback) {
-  del('dist', callback);
-});
+gulp.task('clean', done => del('dist', done));
 
 gulp.task('build', function(callback) {
   runSequence('clean', 'babel', callback);
