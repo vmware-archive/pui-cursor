@@ -56,10 +56,10 @@ const $store = new Cursor(store, callback);
 
     The cursor never updates its own data structure, so `get` is prone to returning stale data.
 
-    If you execute `$store.refine('animals', 'lion').set('Scar').get();`, the callback will be called with `{animals: {lion: Simba}}`.
+    If you execute `$store.refine('animals', 'lion').set('Scar').get();`, it will return 'Larry' instead of 'Scar'
 
     In general, we recommend that you not use `get` and instead access the store directly with props.
-    If you want to use `get`, ensure that you are using a new Cursor.
+    If you want to use `get`, ensure that you are using the newest version of your Cursor.
 
 * `set`: sets the data for your current node. If you call `set at the top of the data tree, it sets the data for every node.
 
@@ -80,7 +80,7 @@ var store = {animals: {lion: 'Larry', seal: 'Sebastian'}};
 const $store = new Cursor(store, callback);
 	```
 
-   If you execute `$store.refine('animals', 'seal').get();`, the callback will be called with `'Sebastian'`.
+   For example, `$store.refine('animals', 'seal').get();`,  will return 'Sebastian'.
 
    If the data node that you're on is an **array of objects**, refine expects an index or an element of the array.
 
@@ -101,7 +101,7 @@ const $store = new Cursor(store, callback);
 $store.refine('animals').merge({squirrel: 'Stumpy'})
   ```
 
-  The store is now `{animals: {lion: 'Larry', seal: 'Sebastian', squirrel: 'Stumpy'}}`.
+  The callback will be called with `{animals: {lion: 'Larry', seal: 'Sebastian', squirrel: 'Stumpy'}}`.
 
 * `push`: pushes to the array at your current node
 
@@ -109,11 +109,12 @@ $store.refine('animals').merge({squirrel: 'Stumpy'})
 var hey = {greeting: 'hey'}
 var hi = {greeting: 'hi'}
 var hello = {greeting: 'hello'}
+var yo = {grettings: 'yo'}
 var store = {greetings: [hey, hi, hello]}
 const $store = new Cursor(store, callback);
    ```
 
-   If you execute `$store.refine('greetings').push({greeting: 'yo'})`, the callback will be called with all four greetings.
+   If you execute `$store.refine('greetings').push({greeting: 'yo'})`, the callback will be called with `{greetings: [hey, hi, hello, yo]}`.
 
 * `apply`:
 
@@ -205,17 +206,18 @@ const $store = new Cursor(store, callback);
 
    If you execute `$store.refine('greetings').splice([2, 1, yo])`, the callback will be called with `{greetings: [hey, hi, yo]}`.
 
-* `unshift`: removes an element from the start the current array node. This must be on an array node.
+* `unshift`: adds an element to the start of the array at the current node.
 
    ```
 var hey = {greeting: 'hey'}
 var hi = {greeting: 'hi'}
 var hello = {greeting: 'hello'}
+var yo = {greeting: 'yo'}
 var store = {greetings: [hey, hi, hello]}
 const $store = new Cursor(store, callback);
    ```
 
-   If you execute `$store.refine('greetings').unshift()`, the callback will be called with `{greetings: [hi, hello}`
+   If you execute `$store.refine('greetings').unshift(yo)`, the callback will be called with `{greetings: [yo, hey, hi, hello]}`
 
 ---
 
