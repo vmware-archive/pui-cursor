@@ -57,50 +57,60 @@ the application store will now have `visitors` in addition to `animals`.
 
 ##Timing
 
-When the cursor is updated, the callback is called asynchronously (inside of a `setImmediate` under the hood).
-This is to handle multiple synchronous updates to the cursor.
-The updates are batched together into a single callback.
+When the cursor is updated, the callback is called asynchronously (inside of a `setImmediate()` under the hood). This is
+to handle multiple synchronous updates to the cursor. The updates are batched together into a single callback.
 
 ### Synchronous Mode
-If you want synchronous callbacks, you can set
+
+If you want to use synchronous callbacks, you can enable synchronous mode by setting
+
 ```js
 Cursor.async = false;
 ```
-As a side-effect of synchronous mode, synchronous updates to the cursor are no longer batched.
-This can lead to many more callbacks and a reduction in performance.
-For this reason, synchronous mode is recommended for unit tests, but not production code.
+
+In synchronous mode, synchronous updates to the cursor are no longer batched. This can lead to many
+more callbacks and a reduction in performance. **We recommend using synchronous mode only for unit tests**.
 
 ### Common Asynchronous Mistakes
 
 #### Accessing the store before it updates
-An example problem that could arise from asynchronous callbacks is illustrated below.
+
+Using asynchronous callbacks can lead to unexpected behavior when accessing the store.
+
+For example:
 
 ```js
 var store = [1,2];
 const $store = new Cursor(store, callback);
 ```
 
-if you update the cursor and try to access the store synchronously:
+If you update the cursor and try to access the store synchronously,
 
 ```js
 $store.push(3);
 console.log($store.get())
 ```
 
-you would expect the console to print `[1,2,3]`. You will instead see `[1,2]` because the callback has not fired yet.
-Common solutions for getting this behavior correct are React lifecycle methods like `componentWillReceiveProps` or `componentDidUpdate`.
-If you add the following function to a component that has the store as a prop,
-it will print `[1,2,3]`.
+you might expect the console to print `[1,2,3]`. Instead the console will print `[1,2]` because the callback has not
+fired yet.
+
+You can use the React lifecycle methods such as `componentWillReceiveProps` or `componentDidUpdate` to work
+around this. For example, if you add the following function to a component that has the store as a prop,
+
 ```js
 componentWillReceiveProps(nextProps) {
-  if(nextProps.store !== this.props.store) console.log(nextProps.store);
+  if (nextProps.store !== this.props.store) {
+    console.log(nextProps.store);
+  }
 }
 ```
 
+the console will print `[1,2,3]`.
+
 #### Stale Cursors
 
-Another more subtle problem may arise from storing the cursor as a variable. 
-If you are in a component with `$store` on props, you might want to write code like
+Another, more subtle, problem might arise from storing the cursor as a variable. If you are in a component with `$store`
+on props, you might want to write code like the following:
 
 ```js
 var $store = this.props.$store
@@ -109,15 +119,16 @@ doSomethingAsync().then(function(something) {
 });
 ```
 
-This code will work in isolation, but it has a race condition.
-If, while you are waiting for `doSomethingAsync` to resolve, some other code
-updates the cursor, `$store.push("otherThing")`, the active cursor is now updated.
-When `doSomethingAsync` resolves, the handler attached to it will update the old cursor and not the new one.
-In this example, it will call the callback without the `"otherThing"` addition to the store.
-This can sometimes be a very subtle bug, 
-so cursors will print a "You are updating a stale cursor" warning in the console when it is happening.
+This code will work in isolation, but it has a race condition. If some other code updates the cursor (i.e.
+`$store.push("otherThing")`) while you are waiting for `doSomethingAsync` to resolve, the active cursor has updated to
+include "otherThing". When `doSomethingAsync` resolves, the handler attached to it will update the old cursor (that does
+not include "otherThing"). The callback will be called with the old store, which does not have `"otherThing"`.
 
-The safer version of the code is
+This bug can be hard to diagnose, so cursors will print a "You are updating a stale cursor" warning in the console when
+a stale cursor is being updated.
+
+The safer version of the code is:
+
 ```js
 doSomethingAsync().then((function(something){
   this.props.$store.push(something);
@@ -125,7 +136,6 @@ doSomethingAsync().then((function(something){
 ```
 
 This ensures that the component uses the most recent version of the store when updating.
-
 
 ##API
 
