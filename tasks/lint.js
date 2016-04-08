@@ -1,10 +1,19 @@
 const gulp = require('gulp');
-const plugins = require('gulp-load-plugins')();
+const {eslint, if: gulpIf, plumber, util: {colors, log}} = require('gulp-load-plugins')();
 
 gulp.task('lint', function() {
-  return gulp.src(['gulpfile.js', 'tasks/**/*.js', 'src/**/*.js'])
-    .pipe(plugins.plumber())
-    .pipe(plugins.eslint())
-    .pipe(plugins.eslint.format('stylish'))
-    .pipe(plugins.eslint.failOnError());
+  const {FIX: fix = true} = process.env;
+  return gulp.src(['gulpfile.js', 'tasks/**/*.js', 'src/**/*.js'], {base: '.'})
+    .pipe(plumber())
+    .pipe(eslint({fix}))
+    .pipe(eslint.format('stylish'))
+    .pipe(gulpIf(file => {
+        const fixed = file.eslint && typeof file.eslint.output === 'string';
+        if (fixed) {
+          log(colors.yellow(`fixed an error in ${file.eslint.filePath}`));
+          return true;
+        }
+      },
+      gulp.dest('.'))
+    ).pipe(eslint.failAfterError());
 });

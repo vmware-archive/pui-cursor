@@ -439,15 +439,15 @@ describe('Cursor', function() {
         Cursor.async = true;
         spyOn(Cursor.prototype, 'nextTick').and.callFake(cb => setTimeout(cb, 0));
 
-        spyOn(console, 'warn');
+        spyOn(console, 'error');
         subject.set({foo: 'bar'});
         MockPromises.tick();
-        expect(console.warn).not.toHaveBeenCalled();
+        expect(console.error).not.toHaveBeenCalled();
       });
 
       it('does not warn users about using it', function() {
         subject.merge({foo: 'baz'});
-        expect(console.warn).not.toHaveBeenCalled();
+        expect(console.error).not.toHaveBeenCalled();
       });
     });
   });
@@ -460,15 +460,15 @@ describe('Cursor', function() {
     describe('with a stale cursor', function() {
       beforeEach(function() {
         Cursor.async = true;
-        spyOn(console, 'warn');
+        spyOn(console, 'error');
         subject.set({foo: 'bar'});
         MockPromises.tick();
-        expect(console.warn).not.toHaveBeenCalled();
+        expect(console.error).not.toHaveBeenCalled();
       });
 
       it('warns users about using it', function() {
         subject.merge({foo: 'baz'});
-        expect(console.warn).toHaveBeenCalled();
+        expect(console.error).toHaveBeenCalled();
       });
     });
   });
