@@ -1,11 +1,10 @@
 require('babel-polyfill');
 require('./support/bluebird');
 
-const React = require('react');
 const jQuery = require('jquery');
 const MockPromises = require('mock-promises');
 
-const globals = {$: jQuery, jQuery, MockPromises , React};
+const globals = {$: jQuery, jQuery, MockPromises};
 
 Object.assign(global, globals);
 
