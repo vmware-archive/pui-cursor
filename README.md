@@ -2,7 +2,6 @@
 [![Build Status](https://travis-ci.org/pivotal-cf/pui-cursor.svg)](https://travis-ci.org/pivotal-cf/pui-cursor)
 
 Utility designed for immutable data in a React flux architecture.
-Also contains pure render mixin for cursors.
 
 ## Table of Contents
 
@@ -257,7 +256,7 @@ Since the data passed into the callback is a shallow clone of the old data, valu
 deep are not copied, so `shallowCloneOfOldData.animals.mammals` will refer to the exact same object in memory as `currentData.animals.mammals`.
 
 The above version of `apply` will mutate the previous data in the cursor (`currentData`) in addition to updating the cursor.
-As a side effect, `PureRenderMixin` will not detect any changes in the data when it compares previous props and new props.
+As a side effect, `shallow compare` will not detect any changes in the data when it compares previous props and new props.
 To safely use `apply` on nested data, you need to use the React immutability helpers directly:
 
 ```js
@@ -333,4 +332,4 @@ If you execute `$store.refine('greetings').unshift(yo)`, the callback will be ca
 
 ---
 
-(c) Copyright 2015 Pivotal Software, Inc. All Rights Reserved.
+(c) Copyright 2016 Pivotal Software, Inc. All Rights Reserved.
