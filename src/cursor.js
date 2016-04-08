@@ -1,6 +1,6 @@
 const isObject = require('lodash.isobject');
 const flow = require('lodash.flow');
-const reactUpdate = require('react-addons-update');
+const update = require('immutability-helper');
 const warning = require('fbjs/lib/warning');
 
 let async = true, debug = true;
@@ -95,7 +95,7 @@ class Cursor {
     const {path, state: {updates, stale}} = privates.get(this);
     if (Cursor.debug) warning(!stale, 'You are updating a stale cursor, this is almost always a bug');
     const query = path.reduceRight((memo, step) => ({[step]: {...memo}}), options);
-    updates.push(data => reactUpdate(data, query));
+    updates.push(data => update(data, query));
     if (!Cursor.async) return this.flush();
     if (updates.length === 1) this.nextTick(this.flush.bind(this));
     return this;
