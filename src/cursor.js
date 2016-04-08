@@ -1,7 +1,7 @@
 const isObject = require('lodash.isobject');
 const flow = require('lodash.flow');
 const update = require('immutability-helper');
-const warning = require('fbjs/lib/warning');
+const warning = require('warning');
 
 let async = true, debug = true;
 const privates = new WeakMap();

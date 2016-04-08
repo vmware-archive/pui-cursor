@@ -8,13 +8,11 @@ const COPYRIGHT = '//(c) Copyright 2015 Pivotal Software, Inc. All Rights Reserv
 
 gulp.task('clean', done => del('dist', done));
 
-gulp.task('build', function(callback) {
-  runSequence('clean', 'babel', callback);
-});
+gulp.task('build', done => runSequence('clean', 'babel', done));
 
 gulp.task('babel', function() {
   return mergeStream(
-    gulp.src('src/**/*.js').pipe(plugins.babel()).pipe(plugins.header(COPYRIGHT)),
+    gulp.src(['src/**/*.js'], {base: 'src'}).pipe(plugins.babel()).pipe(plugins.header(COPYRIGHT)),
     gulp.src(['LICENSE', 'README.md', 'package.json'])
   ).pipe(gulp.dest('dist'));
 });
