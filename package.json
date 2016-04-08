@@ -1,6 +1,6 @@
 {
   "name": "pui-cursor",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "immutable cursor implementation for react",
   "main": "cursor.js",
   "scripts": {
