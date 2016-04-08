@@ -1,19 +1,42 @@
-require('./spec_helper');
+require('../spec_helper');
 
 describe('Cursor', function() {
   let Cursor, subject, data, cells, callbackSpy;
   beforeEach(function() {
-    Cursor = require('../src/cursor');
+    Cursor = require('../../src/cursor');
     cells = [{cell_id: 4}, {cell_id: 32}, {cell_id: 44}];
     data = {scaling: 'containers', cells, desiredLrps: []};
     callbackSpy = jasmine.createSpy('callback');
     subject = new Cursor(data, callbackSpy);
   });
 
+  describe('#nextTick', () => {
+    let callbackSpy;
+    beforeEach(() => {
+      callbackSpy = jasmine.createSpy('callback');
+    });
+
+    it('calls the callback when the promise is resolved', () => {
+      subject.nextTick(callbackSpy);
+      expect(callbackSpy).not.toHaveBeenCalled();
+      MockPromises.tick();
+      expect(callbackSpy).toHaveBeenCalled();
+    });
+
+    it('throws an exception when an error is thrown in the callback', () => {
+      const error = 'some error';
+      callbackSpy.and.callFake(function() { throw new Error(error); });
+      subject.nextTick(callbackSpy);
+      expect(() => {
+        MockPromises.tick(2);
+        jasmine.clock().tick(1);
+      }).toThrowError(error);
+    });
+  });
+
   describe('with async true', function() {
     beforeEach(function() {
       Cursor.async = true;
-      spyOn(Cursor.prototype, 'nextTick').and.callFake(cb => setTimeout(cb, 0));
     });
 
     describe('#get', function() {
@@ -43,7 +66,7 @@ describe('Cursor', function() {
       it('returns a cursor that updates in the expected way', function() {
         const cell = {cell_id: 'new'};
         subject.refine('cells').refine(cells[1]).set(cell);
-        jasmine.clock().tick(1);
+        MockPromises.tick();
         expect(callbackSpy).toHaveBeenCalled();
         expect(callbackSpy.calls.mostRecent().args[0].cells).toContain(cell);
       });
@@ -66,19 +89,19 @@ describe('Cursor', function() {
     describe('#update', function() {
       it('calls the callback with the changed data', function() {
         subject.update({scaling: {$set: 'memory'}});
-        jasmine.clock().tick(1);
+        MockPromises.tick();
         expect(callbackSpy).toHaveBeenCalledWith(jasmine.objectContaining({scaling: 'memory', cells}));
       });
 
       it('calls the callback when cursor is refined', function() {
         subject.refine('scaling').update({$set: 'memory'});
-        jasmine.clock().tick(1);
+        MockPromises.tick();
         expect(callbackSpy).toHaveBeenCalledWith(jasmine.objectContaining({scaling: 'memory', cells}));
       });
 
       it('calls the callback when the cursor is refined at multiple levels', function() {
         subject.refine('cells', 0, 'cell_id').update({$set: 'something'});
-        jasmine.clock().tick(1);
+        MockPromises.tick();
         expect(callbackSpy).toHaveBeenCalled();
         expect(callbackSpy.calls.mostRecent().args[0].cells[0].cell_id).toEqual('something');
       });
@@ -87,7 +110,7 @@ describe('Cursor', function() {
     describe('#merge', function() {
       it('updates the cursor', function() {
         subject.merge({foo: 'bar'});
-        jasmine.clock().tick(1);
+        MockPromises.tick();
         expect(callbackSpy).toHaveBeenCalledWith(jasmine.objectContaining({foo: 'bar', cells}));
       });
     });
@@ -95,7 +118,7 @@ describe('Cursor', function() {
     describe('#set', function() {
       it('updates the cursor', function() {
         subject.refine('scaling').set('memory');
-        jasmine.clock().tick(1);
+        MockPromises.tick();
         expect(callbackSpy).toHaveBeenCalledWith(jasmine.objectContaining({scaling: 'memory', cells}));
       });
     });
@@ -103,7 +126,7 @@ describe('Cursor', function() {
     describe('#splice', function() {
       it('updates the cursor', function() {
         subject.refine('cells').splice([0, 1]);
-        jasmine.clock().tick(1);
+        MockPromises.tick();
         expect(callbackSpy.calls.mostRecent().args[0].cells).not.toContain(cells[0]);
       });
     });
@@ -112,7 +135,7 @@ describe('Cursor', function() {
       it('updates the cursor', function() {
         const cell = {cell_id: 'new'};
         subject.refine('cells').push(cell);
-        jasmine.clock().tick(1);
+        MockPromises.tick();
         expect(callbackSpy).toHaveBeenCalled();
         expect(callbackSpy.calls.mostRecent().args[0].cells).toContain(cell);
       });
@@ -122,7 +145,7 @@ describe('Cursor', function() {
       it('updates the cursor', function() {
         const cell = {cell_id: 'new'};
         subject.refine('cells').unshift(cell);
-        jasmine.clock().tick(1);
+        MockPromises.tick();
         expect(callbackSpy).toHaveBeenCalled();
         expect(callbackSpy.calls.mostRecent().args[0].cells).toContain(cell);
       });
@@ -132,7 +155,7 @@ describe('Cursor', function() {
       it('updates the cursor', function() {
         const newCells = [{cell_id: 'a'}, {cell_id: 'b'}, {cell_id: 'c'}];
         subject.refine('cells').apply(() => newCells);
-        jasmine.clock().tick(1);
+        MockPromises.tick();
         expect(callbackSpy).toHaveBeenCalledWith(jasmine.objectContaining({cells: newCells}));
       });
     });
@@ -140,7 +163,7 @@ describe('Cursor', function() {
     describe('chaining', function() {
       it('works', function() {
         subject.set({foo: 'bar'}).merge({bar: 'baz'});
-        jasmine.clock().tick(1);
+        MockPromises.tick();
         expect(callbackSpy).toHaveBeenCalledWith(jasmine.objectContaining({foo: 'bar', bar: 'baz'}));
       });
     });
@@ -157,20 +180,20 @@ describe('Cursor', function() {
       describe('when the cursor points to an array', function() {
         it('updates the cursor when given an object', function() {
           subject.refine('cells').remove(cells[0]);
-          jasmine.clock().tick(1);
+          MockPromises.tick();
           expect(callbackSpy.calls.mostRecent().args[0].cells).not.toContain(cells[0]);
         });
 
         it('does not do anything when attempting to remove an array entry that is not there in the first place', function() {
           subject.refine('cells').remove('not in cells');
-          jasmine.clock().tick(1);
+          MockPromises.tick();
           expect(callbackSpy.calls.mostRecent().args[0].cells).toEqual(cells);
         })
 
         describe('when the array is empty to begin with', () => {
           it('does not blow up', () => {
             subject.refine('desiredLrps').remove('not in desiredLrps');
-            jasmine.clock().tick(1);
+            MockPromises.tick();
             expect(callbackSpy.calls.mostRecent().args[0].desiredLrps).toEqual([]);
           });
         });
@@ -179,13 +202,13 @@ describe('Cursor', function() {
       describe('when the cursor points to an object', function() {
         it('updates the cursor when given an object', function() {
           subject.remove('scaling');
-          jasmine.clock().tick(1);
+          MockPromises.tick();
           expect(callbackSpy).toHaveBeenCalledWith({cells, desiredLrps: []});
         });
 
         it('does not do anything when attempting to remove a key that is not there in the first place', function() {
           subject.remove('not-here');
-          jasmine.clock().tick(1);
+          MockPromises.tick();
           expect(callbackSpy).toHaveBeenCalledWith(data);
         })
       });
@@ -205,7 +228,7 @@ describe('Cursor', function() {
         it('applies the updates in the expected order', function() {
           subject.merge({hi: 5});
           subject.merge({bye: 3});
-          jasmine.clock().tick(1);
+          MockPromises.tick();
           expect(callbackSpy).toHaveBeenCalled();
           expect(callbackSpy).toHaveBeenCalledWith(jasmine.objectContaining({hi: 5, bye: 3}));
           expect(callbackSpy.calls.count()).toBe(1);
@@ -216,7 +239,7 @@ describe('Cursor', function() {
         it('applies all updates in the expected order', function() {
           subject.refine('scaling').set('something else');
           subject.merge({hi: 5});
-          jasmine.clock().tick(1);
+          MockPromises.tick();
           expect(callbackSpy).toHaveBeenCalledWith(jasmine.objectContaining({hi: 5, scaling: 'something else'}));
           expect(callbackSpy).not.toHaveBeenCalledWith(jasmine.objectContaining({scaling: 'containers'}));
         });
@@ -225,7 +248,7 @@ describe('Cursor', function() {
       describe('#push', function() {
         it('applies all updates in the expected order', function() {
           subject.refine('cells').push({cell_id: 100}).push({cell_id: 101});
-          jasmine.clock().tick(1);
+          MockPromises.tick();
           expect(callbackSpy).toHaveBeenCalled();
           expect(callbackSpy.calls.mostRecent().args[0].cells.map(cell => cell.cell_id)).toEqual([4, 32, 44, 100, 101]);
         });
@@ -236,7 +259,7 @@ describe('Cursor', function() {
           subject.merge({hi: 5});
           subject.merge({bye: 3});
           subject.merge({foo: 4});
-          jasmine.clock().tick(1);
+          MockPromises.tick();
           expect(callbackSpy).toHaveBeenCalledWith(jasmine.objectContaining({hi: 5, bye: 3,foo: 4}));
         });
       });
@@ -418,7 +441,7 @@ describe('Cursor', function() {
 
         spyOn(console, 'warn');
         subject.set({foo: 'bar'});
-        jasmine.clock().tick(1);
+        MockPromises.tick();
         expect(console.warn).not.toHaveBeenCalled();
       });
 
@@ -437,11 +460,9 @@ describe('Cursor', function() {
     describe('with a stale cursor', function() {
       beforeEach(function() {
         Cursor.async = true;
-        spyOn(Cursor.prototype, 'nextTick').and.callFake(cb => setTimeout(cb, 0));
-
         spyOn(console, 'warn');
         subject.set({foo: 'bar'});
-        jasmine.clock().tick(1);
+        MockPromises.tick();
         expect(console.warn).not.toHaveBeenCalled();
       });
 

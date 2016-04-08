@@ -1,12 +1,9 @@
+const isObject = require('lodash.isobject');
 const flow = require('lodash.flow');
 const reactUpdate = require('react-addons-update');
 
 let async = true, debug = true;
 const privates = new WeakMap();
-
-function isObject(obj) {
-  return typeof obj === 'object';
-}
 
 class Cursor {
   static get async() {
@@ -79,7 +76,7 @@ class Cursor {
   }
 
   nextTick(fn) {
-    setImmediate(fn);
+    Promise.resolve().then(fn).catch(error => { setTimeout(() => { throw error; }, 0); });
   }
 
   flush() {
