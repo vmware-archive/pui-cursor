@@ -5,7 +5,7 @@ describe('Cursor', function() {
   beforeEach(function() {
     Cursor = require('../../src/cursor');
     cells = [{cell_id: 4}, {cell_id: 32}, {cell_id: 44}];
-    data = {scaling: 'containers', cells, desiredLrps: []};
+    data = {scaling: 'containers', cells, desiredLrps: [], rules: {1: {name: 'the golden rule'}}};
     callbackSpy = jasmine.createSpy('callback');
     subject = new Cursor(data, callbackSpy);
   });
@@ -188,7 +188,7 @@ describe('Cursor', function() {
           subject.refine('cells').remove('not in cells');
           MockPromises.tick();
           expect(callbackSpy.calls.mostRecent().args[0].cells).toEqual(cells);
-        })
+        });
 
         describe('when the array is empty to begin with', () => {
           it('does not blow up', () => {
@@ -201,9 +201,9 @@ describe('Cursor', function() {
 
       describe('when the cursor points to an object', function() {
         it('updates the cursor when given an object', function() {
-          subject.remove('scaling');
+          subject.refine('rules').remove(1);
           MockPromises.tick();
-          expect(callbackSpy).toHaveBeenCalledWith({cells, desiredLrps: []});
+          expect(callbackSpy).toHaveBeenCalledWith({scaling: 'containers', desiredLrps: [], cells, rules: {}});
         });
 
         it('does not do anything when attempting to remove a key that is not there in the first place', function() {

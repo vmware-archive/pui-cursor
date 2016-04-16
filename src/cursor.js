@@ -65,7 +65,9 @@ class Cursor {
       if(objArrayIndex === -1) return this.splice();
       return this.splice([objArrayIndex, 1]);
     }
-    return this.apply(data => (delete data[obj], data));
+    return this.apply((data) => {
+      return Object.keys(data).filter(key => key !== obj.toString()).reduce((memo, i) => (memo[i] = data[i], memo), {});
+    });
   }
 
   splice(...options) {
