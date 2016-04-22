@@ -1,5 +1,7 @@
 # PUI Cursor
+[![npm version](https://badge.fury.io/js/pui-cursor.svg)](https://badge.fury.io/js/pui-cursor)
 [![Build Status](https://travis-ci.org/pivotal-cf/pui-cursor.svg)](https://travis-ci.org/pivotal-cf/pui-cursor)
+[![Dependencies](https://david-dm.org/pivotal-cf/pui-cursor.svg)](https://david-dm.org/pivotal-cf/pui-cursor)
 
 Utility designed for immutable data in a React flux architecture.
 
