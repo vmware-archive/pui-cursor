@@ -9,7 +9,7 @@ Utility designed for immutable data in a React flux architecture.
 
 * [Overview](#cursors)
 * [Timing](#timing)
-* [API](#API)
+* [API](#api)
     * [get()](#get)
     * [set()](#set)
     * [refine()](#refine)
