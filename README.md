@@ -9,7 +9,7 @@ Utility designed for immutable data in a React flux architecture.
 
 * [Overview](#cursors)
 * [Timing](#timing)
-* [API](#API)
+* [API](#api)
     * [get()](#get)
     * [set()](#set)
     * [refine()](#refine)
@@ -53,7 +53,7 @@ class Application extends React.Component {
 Our convention is to prefix Cursor instances with `$`, like `$store` in the above example. This convention
 differentiates the cursor from the data it contains.
 
-For example in this setup, if the `Zoo` component calls `this.props.$store.merge({visitors: ['Charles', 'Adam', 'Elena']})`,
+For example in this setup, if the `Zoo` component calls `this.props.$store.merge({visitors: ['Charles', 'Adam', 'Elena']});`,
 the application store will now have `visitors` in addition to `animals`.
 
 ##Timing
@@ -89,7 +89,7 @@ If you update the cursor and try to access the store synchronously,
 
 ```js
 $store.push(3);
-console.log($store.get())
+console.log($store.get());
 ```
 
 you might expect the console to print `[1,2,3]`. Instead the console will print `[1,2]` because the callback has not
@@ -114,7 +114,7 @@ Another, more subtle, problem might arise from storing the cursor as a variable.
 on props, you might want to write code like the following:
 
 ```js
-var $store = this.props.$store
+var $store = this.props.$store;
 doSomethingAsync().then(function(something) {
   $store.push(something);
 });
@@ -148,7 +148,7 @@ is used to update the cursor value.
 
 Returns your current node
 
-```
+```js
 var store = {animals: {lion: 'Larry', seal: 'Sebastian'}};
 const $store = new Cursor(store, callback);
 ```
@@ -164,13 +164,13 @@ If you want to use `get`, ensure that you are using the newest version of your C
 
 Sets the data for your current node. If you call `set at the top of the data tree, it sets the data for every node.
 
-```
+```js
 var store = {animals: {lion: 'Larry', seal: 'Sebastian'}};
 const $store = new Cursor(store, callback);
 ```
 
 
-If you execute `$store.refine('animals').set({lion: 'Simba', warthog: 'Pumba'})`,
+If you execute `$store.refine('animals').set({lion: 'Simba', warthog: 'Pumba'});`,
 the callback will be called with `{animals: {lion: 'Simba', warthog: 'Pumba'}}`.
 
 ###`refine()`
@@ -179,7 +179,7 @@ Changes where you are in the data tree. You can provide `refine` with multiple a
 
 If the data node that you're on is an **object**, refine expects a string that corresponds to a key in the object.
 
-```
+```js
 var store = {animals: {lion: 'Larry', seal: 'Sebastian'}};
 const $store = new Cursor(store, callback);
 ```
@@ -188,23 +188,23 @@ For example, `$store.refine('animals', 'seal').get();`,  will return 'Sebastian'
 
 If the data node that you're on is an **array of objects**, refine expects an index or an element of the array.
 
-```
-var hey = {greeting: 'hey'}
-var hi = {greeting: 'hi'}
-var hello = {greeting: 'hello'}
-var store = {greetings: [hey, hi, hello]}
+```js
+var hey = {greeting: 'hey'};
+var hi = {greeting: 'hi'};
+var hello = {greeting: 'hello'};
+var store = {greetings: [hey, hi, hello]};
 const $store = new Cursor(store, callback);
 ```
 
-then `$store.refine('greetings', 1, 'greeting').get()` will return 'hi'. If you have the element of an array but not the index,
-`$store.refine('greetings', hi, 'greeting').get()` will also return 'hi'.
+then `$store.refine('greetings', 1, 'greeting').get();` will return 'hi'. If you have the element of an array but not the index,
+`$store.refine('greetings', hi, 'greeting').get();` will also return 'hi'.
 
 ###`merge()`
 
 Merges data onto the object at your current node
 
-```
-$store.refine('animals').merge({squirrel: 'Stumpy'})
+```js
+$store.refine('animals').merge({squirrel: 'Stumpy'});
 ```
 
 The callback will be called with `{animals: {lion: 'Larry', seal: 'Sebastian', squirrel: 'Stumpy'}}`.
@@ -213,16 +213,16 @@ The callback will be called with `{animals: {lion: 'Larry', seal: 'Sebastian', s
 
 Pushes to the array at your current node
 
-```
-var hey = {greeting: 'hey'}
-var hi = {greeting: 'hi'}
-var hello = {greeting: 'hello'}
-var yo = {grettings: 'yo'}
-var store = {greetings: [hey, hi, hello]}
+```js
+var hey = {greeting: 'hey'};
+var hi = {greeting: 'hi'};
+var hello = {greeting: 'hello'};
+var yo = {grettings: 'yo'};
+var store = {greetings: [hey, hi, hello]};
 const $store = new Cursor(store, callback);
 ```
 
-If you execute `$store.refine('greetings').push({greeting: 'yo'})`, the callback will be called with `{greetings: [hey, hi, hello, yo]}`.
+If you execute `$store.refine('greetings').push({greeting: 'yo'});`, the callback will be called with `{greetings: [hey, hi, hello, yo]}`.
 
 ###`apply()`
 
@@ -232,8 +232,8 @@ you can always call `apply` to specify an arbitrary transformation.
 Example:
 
 ```js
-var currentData = {foo: 'bar'}
-var cursor = new Cursor(currentData, function(newData){ this.setState({data: newData})
+var currentData = {foo: 'bar'};
+var cursor = new Cursor(currentData, function(newData){ this.setState({data: newData}); });
 cursor.apply(function(shallowCloneOfOldData) {
   shallowCloneOfOldData.foo += 'bar';
   return shallowCloneOfOldData;
@@ -245,8 +245,8 @@ __Warning:__ The callback for `apply` is given a shallow clone of your data
 This can cause unintended side effects, illustrated in the following example:
 
 ```js
-var currentData = {animals: {mammals: {felines: 'tiger'}}}
-var cursor = new Cursor(currentData, function(newData){ this.setState({data: newData})});
+var currentData = {animals: {mammals: {felines: 'tiger'}}};
+var cursor = new Cursor(currentData, function(newData){ this.setState({data: newData}); });
 
 cursor.apply(function(shallowCloneOfOldData) {
   shallowCloneOfOldData.animals.mammals.felines = 'lion';
@@ -270,7 +270,7 @@ cursor.apply(function(shallowCloneOfOldData) {
       mammals: {
         felines: {$set: 'lion'}
       }
-    });
+    }
   });
 });
 ```
@@ -281,20 +281,20 @@ Removes your current node
 
 If the current node is an object and you call remove(key), remove deletes the key-value.
 
-```
+```js
 var store = {animals: {lion: 'Larry', seal: 'Sebastian'}};
 const $store = new Cursor(store, callback);
 ```
 
-If you execute `$store.refine('animals', 'seal').remove()`, the callback will be called with `{animals: {lion: 'Larry'}}`.
+If you execute `$store.refine('animals', 'seal').remove();`, the callback will be called with `{animals: {lion: 'Larry'}}`.
 
 If the current node is an array:
 
-```
-var hey = {greeting: 'hey'}
-var hi = {greeting: 'hi'}
-var hello = {greeting: 'hello'}
-var store = {greetings: [hey, hi, hello]}
+```js
+var hey = {greeting: 'hey'};
+var hi = {greeting: 'hi'};
+var hello = {greeting: 'hello'};
+var store = {greetings: [hey, hi, hello]};
 const $store = new Cursor(store, callback);
 ```
 
@@ -306,31 +306,31 @@ Splices an array in a very similar way to `array.splice`. It expects an array of
 The first element is the starting index, the second is how many elements from the start you want to replace, and the
 third is what you will replace those elements with.
 
-```
-var hey = {greeting: 'hey'}
-var hi = {greeting: 'hi'}
-var hello = {greeting: 'hello'}
-var yo = {greeting: 'yo'}
-var store = {greetings: [hey, hi, hello]}
+```js
+var hey = {greeting: 'hey'};
+var hi = {greeting: 'hi'};
+var hello = {greeting: 'hello'};
+var yo = {greeting: 'yo'};
+var store = {greetings: [hey, hi, hello]};
 const $store = new Cursor(store, callback);
 ```
 
-If you execute `$store.refine('greetings').splice([2, 1, yo])`, the callback will be called with `{greetings: [hey, hi, yo]}`.
+If you execute `$store.refine('greetings').splice([2, 1, yo]);`, the callback will be called with `{greetings: [hey, hi, yo]}`.
 
 ###`unshift()`
 
 Adds an element to the start of the array at the current node.
 
-```
-var hey = {greeting: 'hey'}
-var hi = {greeting: 'hi'}
-var hello = {greeting: 'hello'}
-var yo = {greeting: 'yo'}
-var store = {greetings: [hey, hi, hello]}
+```js
+var hey = {greeting: 'hey'};
+var hi = {greeting: 'hi'};
+var hello = {greeting: 'hello'};
+var yo = {greeting: 'yo'};
+var store = {greetings: [hey, hi, hello]};
 const $store = new Cursor(store, callback);
 ```
 
-If you execute `$store.refine('greetings').unshift(yo)`, the callback will be called with `{greetings: [yo, hey, hi, hello]}`
+If you execute `$store.refine('greetings').unshift(yo);`, the callback will be called with `{greetings: [yo, hey, hi, hello]}`
 
 ---
 
