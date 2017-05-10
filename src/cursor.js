@@ -1,12 +1,12 @@
-const isObject = require('lodash.isobject');
-const flow = require('lodash.flow');
-const update = require('immutability-helper');
-const warning = require('warning');
+import isObject from 'lodash.isobject';
+import flow from 'lodash.flow';
+import update from 'immutability-helper';
+import warning from 'warning';
 
 let async = true, debug = true;
 const privates = new WeakMap();
 
-class Cursor {
+export default class Cursor {
   static get async() {
     return async;
   }
@@ -59,14 +59,11 @@ class Cursor {
   }
 
   remove(obj) {
-    const target = this.get();
-    if (Array.isArray(target)){
-      const objArrayIndex = target.indexOf(obj);
-      if(objArrayIndex === -1) return this.splice();
-      return this.splice([objArrayIndex, 1]);
-    }
-    return this.apply((data) => {
-      return Object.keys(data).filter(key => key !== obj.toString()).reduce((memo, i) => (memo[i] = data[i], memo), {});
+    return this.apply(data => {
+      if (Array.isArray(data)) return data.filter(i => i !== obj);
+      return Object.entries(data)
+        .filter(([key]) => key !== obj.toString())
+        .reduce((memo, [key, value]) => (memo[key] = value, memo), {});
     });
   }
 
@@ -79,7 +76,11 @@ class Cursor {
   }
 
   nextTick(fn) {
-    Promise.resolve().then(fn).catch(error => { setTimeout(() => { throw error; }, 0); });
+    Promise.resolve().then(fn).catch(error => {
+      setTimeout(() => {
+        throw error;
+      }, 0);
+    });
   }
 
   flush() {
@@ -103,5 +104,3 @@ class Cursor {
     return this;
   }
 }
-
-module.exports = Cursor;

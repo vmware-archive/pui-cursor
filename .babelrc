@@ -1,4 +1,4 @@
 {
-  "presets": ["es2015-loose"],
-  "plugins": ["transform-object-rest-spread", "transform-runtime"]
+  "presets": [["es2015", {"loose": true}]],
+  "plugins": ["transform-object-rest-spread", "transform-runtime", "add-module-exports"]
 }
