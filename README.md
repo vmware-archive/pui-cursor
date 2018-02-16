@@ -20,7 +20,7 @@ Utility designed for immutable data in a React flux architecture.
     * [splice()](#splice)
     * [unshift()](#unshift)
 
-##Cursors
+## Cursors
 
 PUI Cursors are simplified versions of [Om Cursors](https://github.com/omcljs/om/wiki/Cursors) designed for use with a
 React Flux architecture. It enables targeted, immutable updates to data; these updates are particularly useful for updating a store in
@@ -56,7 +56,7 @@ differentiates the cursor from the data it contains.
 For example in this setup, if the `Zoo` component calls `this.props.$store.merge({visitors: ['Charles', 'Adam', 'Elena']});`,
 the application store will now have `visitors` in addition to `animals`.
 
-##Timing
+## Timing
 
 When the cursor is updated, the callback is called asynchronously (inside of a `setImmediate()` under the hood). This is
 to handle multiple synchronous updates to the cursor. The updates are batched together into a single callback.
@@ -138,13 +138,13 @@ doSomethingAsync().then((function(something){
 
 This ensures that the component uses the most recent version of the store when updating.
 
-##API
+## API
 
 PUI Cursor provides wrappers for the [React immutability helpers](https://facebook.github.io/react/docs/update.html).
 These wrappers allow you to transform the data in your cursor; the transformation you specify is applied and the new result
 is used to update the cursor value.
 
-###`get()`
+### `get()`
 
 Returns your current node
 
@@ -160,7 +160,7 @@ If you execute `$store.refine('animals', 'lion').set('Scar').get();`, it will re
 In general, we recommend that you not use `get` and instead access the store directly with props.
 If you want to use `get`, ensure that you are using the newest version of your Cursor.
 
-###`set()`
+### `set()`
 
 Sets the data for your current node. If you call `set at the top of the data tree, it sets the data for every node.
 
@@ -173,7 +173,7 @@ const $store = new Cursor(store, callback);
 If you execute `$store.refine('animals').set({lion: 'Simba', warthog: 'Pumba'});`,
 the callback will be called with `{animals: {lion: 'Simba', warthog: 'Pumba'}}`.
 
-###`refine()`
+### `refine()`
 
 Changes where you are in the data tree. You can provide `refine` with multiple arguments to take you deeper into the tree.
 
@@ -199,7 +199,7 @@ const $store = new Cursor(store, callback);
 then `$store.refine('greetings', 1, 'greeting').get();` will return 'hi'. If you have the element of an array but not the index,
 `$store.refine('greetings', hi, 'greeting').get();` will also return 'hi'.
 
-###`merge()`
+### `merge()`
 
 Merges data onto the object at your current node
 
@@ -209,7 +209,7 @@ $store.refine('animals').merge({squirrel: 'Stumpy'});
 
 The callback will be called with `{animals: {lion: 'Larry', seal: 'Sebastian', squirrel: 'Stumpy'}}`.
 
-###`push()`
+### `push()`
 
 Pushes to the array at your current node
 
@@ -224,7 +224,7 @@ const $store = new Cursor(store, callback);
 
 If you execute `$store.refine('greetings').push({greeting: 'yo'});`, the callback will be called with `{greetings: [hey, hi, hello, yo]}`.
 
-###`apply()`
+### `apply()`
 
 If the simpler functions like `set`, `merge`, or `push` cannot describe the update you need,
 you can always call `apply` to specify an arbitrary transformation.
@@ -275,7 +275,7 @@ cursor.apply(function(shallowCloneOfOldData) {
 });
 ```
 
-###`remove()`
+### `remove()`
 
 Removes your current node
 
@@ -300,7 +300,7 @@ const $store = new Cursor(store, callback);
 
 If you execute `$store.refine('greetings').remove(hello)`, the callback will be called with `{greetings: [hey, hi]}`.
 
-###`splice()`
+### `splice()`
 
 Splices an array in a very similar way to `array.splice`. It expects an array of 3 elements as an argument.
 The first element is the starting index, the second is how many elements from the start you want to replace, and the
@@ -317,7 +317,7 @@ const $store = new Cursor(store, callback);
 
 If you execute `$store.refine('greetings').splice([2, 1, yo]);`, the callback will be called with `{greetings: [hey, hi, yo]}`.
 
-###`unshift()`
+### `unshift()`
 
 Adds an element to the start of the array at the current node.
 
