@@ -1,4 +1,4 @@
-const gulp = require('gulp');
-const runSequence = require('run-sequence');
+import gulp from 'gulp';
+import runSequence from 'gulp4-run-sequence';
 
-gulp.task('default', done => runSequence('lint', 'spec', 'check-coverage', done));
+gulp.task('default', done => runSequence('lint', 'spec', done));

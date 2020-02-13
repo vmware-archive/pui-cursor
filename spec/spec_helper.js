@@ -1,4 +1,5 @@
-require('babel-polyfill');
+import "core-js/stable";
+import "regenerator-runtime/runtime";
 require('./support/bluebird');
 
 const jQuery = require('jquery');
@@ -9,7 +10,6 @@ const globals = {$: jQuery, jQuery, MockPromises};
 Object.assign(global, globals);
 
 beforeEach(() => {
-  $('body').find('#root').remove().end().append('<main id="root"/>');
   jasmine.clock().install();
   MockPromises.install(Promise);
 });
